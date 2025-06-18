@@ -5,6 +5,7 @@ go 1.23.0
 require (
 	github.com/anush008/fastembed-go v1.0.0
 	github.com/joho/godotenv v1.5.1
+	github.com/pocketbase/pocketbase v0.28.3
 	github.com/qdrant/go-client v1.13.0
 	github.com/tmc/langchaingo v0.1.13
 )
@@ -29,7 +30,6 @@ require (
 	github.com/ncruces/go-strftime v0.1.9 // indirect
 	github.com/pkoukk/tiktoken-go v0.1.6 // indirect
 	github.com/pocketbase/dbx v1.11.0 // indirect
-	github.com/pocketbase/pocketbase v0.28.3 // indirect
 	github.com/remyoudompheng/bigfft v0.0.0-20230129092748-24d4a6f8daec // indirect
 	github.com/rivo/uniseg v0.4.6 // indirect
 	github.com/schollz/progressbar/v2 v2.15.0 // indirect
@@ -39,7 +39,7 @@ require (
 	github.com/spf13/pflag v1.0.6 // indirect
 	github.com/sugarme/regexpset v0.0.0-20200920021344-4d4ec8eaf93c // indirect
 	github.com/sugarme/tokenizer v0.2.3-0.20230829214935-448e79b1ed65 // indirect
-	github.com/yalue/onnxruntime_go v1.7.0 // indirect
+	github.com/yalue/onnxruntime_go v1.20.0 // indirect
 	golang.org/x/crypto v0.39.0 // indirect
 	golang.org/x/exp v0.0.0-20250606033433-dcc06ee1d476 // indirect
 	golang.org/x/image v0.28.0 // indirect
@@ -49,9 +49,9 @@ require (
 	golang.org/x/sys v0.33.0 // indirect
 	golang.org/x/term v0.32.0 // indirect
 	golang.org/x/text v0.26.0 // indirect
-	google.golang.org/genproto/googleapis/rpc v0.0.0-20240827150818-7e3bb234dfed // indirect
-	google.golang.org/grpc v1.66.0 // indirect
-	google.golang.org/protobuf v1.34.2 // indirect
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20250324211829-b45e905df463 // indirect
+	google.golang.org/grpc v1.73.0 // indirect
+	google.golang.org/protobuf v1.36.6 // indirect
 	modernc.org/libc v1.65.10 // indirect
 	modernc.org/mathutil v1.7.1 // indirect
 	modernc.org/memory v1.11.0 // indirect
