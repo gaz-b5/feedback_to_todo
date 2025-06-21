@@ -36,7 +36,7 @@ func (s Status) String() string {
 	return [...]string{"Pending", "In Progress", "Completed"}[s]
 }
 
-func UpdateAndCreateDataPoint(client *qdrant.Client, dataPoint DataPoint, id int) {
+func updateAndCreateDataPoint(client *qdrant.Client, dataPoint DataPoint, id int) {
 	point := &qdrant.PointStruct{
 		Id: qdrant.NewIDNum(uint64(id)),
 		Vectors: &qdrant.Vectors{
@@ -47,7 +47,7 @@ func UpdateAndCreateDataPoint(client *qdrant.Client, dataPoint DataPoint, id int
 			},
 		},
 		Payload: qdrant.NewValueMap(map[string]any{
-			strconv.Itoa(id): CreatePayload(dataPoint),
+			strconv.Itoa(id): createPayload(dataPoint),
 		}),
 	}
 
@@ -61,9 +61,9 @@ func UpdateAndCreateDataPoint(client *qdrant.Client, dataPoint DataPoint, id int
 	}
 }
 
-func GetTasks(query string, llm *openai.LLM) []string {
+func getTasks(query string, llm *openai.LLM) []string {
 	// Define the prompt for the LLM
-	prompt := `You are a task extraction assistant. Given the email report from a customer, extract the tasks and their details to be sent to the engineering team. Do not add any greeting or ending sentence, stick to the format given, do not add any index like "Task1=", etc. The tasks should be in the following format:
+	prompt := `You are a task extraction assistant. Given the email report from a customer, extract the tasks and their details to be sent to the engineering team. Do not add any greeting or ending sentence, stick to the format given, do not add any index like "Task1=", etc. The tasks should be in the following format,where the <bool> implies a bool value which is true if the task is reported bug, or if it is a requested feature:
 	<task>=<bool>;<task>=<bool>;...`
 
 	ctx := context.Background()
@@ -83,7 +83,7 @@ func GetTasks(query string, llm *openai.LLM) []string {
 	return strings.Split(completion, ";")
 }
 
-func CompareStrings(a string, b string, llm *openai.LLM) bool {
+func compareStrings(a string, b string, llm *openai.LLM) bool {
 	prompt := `You are a string comparison assistant. Given two string, determine if they are similar or not, that is are both the strings pointing out the same issue or not. Respond with "true" if they are similar and "false" if they are not.`
 
 	ctx := context.Background()
@@ -103,18 +103,18 @@ func CompareStrings(a string, b string, llm *openai.LLM) bool {
 	return strings.ToLower(completion) == "true"
 }
 
-func CreatePayload(dp DataPoint) map[string]any {
+func createPayload(dp DataPoint) map[string]any {
 	return map[string]any{
 		"Content":   dp.Content,
 		"IsBug":     strconv.FormatBool(dp.IsBug),
 		"RepCount":  strconv.Itoa(dp.RepCount),
 		"Priority":  fmt.Sprintf("%.2f", dp.Priority),
 		"Timestamp": dp.Timestamp.Format(time.RFC3339),
-		"Status":    dp.Status,
+		"Status":    dp.Status.String(),
 	}
 }
 
-func ExpandTask(task string, llm *openai.LLM) string {
+func expandTask(task string, llm *openai.LLM) string {
 	// Define the prompt for the LLM
 	// TODO: Want to make it so that the llm can get the actual values from all task history.
 	prompt := `You are a task expansion assistant. Given a task, expand it to include more details and context. Make it 30 to 40 words long. Just simply respond with the expanded task. Avoid any greeting or ending sentence. Do not use placeholder variables for unknown values.`
@@ -134,5 +134,4 @@ func ExpandTask(task string, llm *openai.LLM) string {
 	fmt.Println("LLM Response:\n", completion)
 
 	return completion
-
 }
