@@ -36,7 +36,7 @@ func (s Status) String() string {
 	return [...]string{"Pending", "In Progress", "Completed"}[s]
 }
 
-func updateAndCreateDataPoint(client *qdrant.Client, dataPoint DataPoint, id int) {
+func UpdateAndCreateDataPoint(client *qdrant.Client, dataPoint DataPoint, id int) {
 	point := &qdrant.PointStruct{
 		Id: qdrant.NewIDNum(uint64(id)),
 		Vectors: &qdrant.Vectors{
@@ -47,7 +47,7 @@ func updateAndCreateDataPoint(client *qdrant.Client, dataPoint DataPoint, id int
 			},
 		},
 		Payload: qdrant.NewValueMap(map[string]any{
-			strconv.Itoa(id): createPayload(dataPoint),
+			strconv.Itoa(id): CreatePayload(dataPoint),
 		}),
 	}
 
@@ -61,7 +61,7 @@ func updateAndCreateDataPoint(client *qdrant.Client, dataPoint DataPoint, id int
 	}
 }
 
-func getTasks(query string, llm *openai.LLM) []string {
+func GetTasks(query string, llm *openai.LLM) []string {
 	// Define the prompt for the LLM
 	prompt := `You are a task extraction assistant. Given the email report from a customer, extract the tasks and their details to be sent to the engineering team. Do not add any greeting or ending sentence, stick to the format given, do not add any index like "Task1=", etc. The tasks should be in the following format,where the <bool> implies a bool value which is true if the task is reported bug, or if it is a requested feature:
 	<task>=<bool>;<task>=<bool>;...`
@@ -83,7 +83,7 @@ func getTasks(query string, llm *openai.LLM) []string {
 	return strings.Split(completion, ";")
 }
 
-func compareStrings(a string, b string, llm *openai.LLM) bool {
+func CompareStrings(a string, b string, llm *openai.LLM) bool {
 	prompt := `You are a string comparison assistant. Given two string, determine if they are similar or not, that is are both the strings pointing out the same issue or not. Respond with "true" if they are similar and "false" if they are not.`
 
 	ctx := context.Background()
@@ -103,7 +103,7 @@ func compareStrings(a string, b string, llm *openai.LLM) bool {
 	return strings.ToLower(completion) == "true"
 }
 
-func createPayload(dp DataPoint) map[string]any {
+func CreatePayload(dp DataPoint) map[string]any {
 	return map[string]any{
 		"Content":   dp.Content,
 		"IsBug":     strconv.FormatBool(dp.IsBug),
@@ -114,7 +114,7 @@ func createPayload(dp DataPoint) map[string]any {
 	}
 }
 
-func expandTask(task string, llm *openai.LLM) string {
+func ExpandTask(task string, llm *openai.LLM) string {
 	// Define the prompt for the LLM
 	// TODO: Want to make it so that the llm can get the actual values from all task history.
 	prompt := `You are a task expansion assistant. Given a task, expand it to include more details and context. Make it 30 to 40 words long. Just simply respond with the expanded task. Avoid any greeting or ending sentence. Do not use placeholder variables for unknown values.`
