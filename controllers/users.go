@@ -7,14 +7,13 @@ import (
 	"net/http"
 
 	"github.com/pocketbase/pocketbase/core"
+	"github.com/pocketbase/pocketbase/mails"
 )
 
-
 type LoginRequest struct {
-    Email    string `json:"email"`
-    Password string `json:"password"`
+	Email    string `json:"email"`
+	Password string `json:"password"`
 }
-
 
 type RegisterRequest struct {
 	Email           string `json:"email"`
@@ -58,13 +57,13 @@ func RegisterUser(e *core.RequestEvent) error {
 		"password": req.Password,
 		"name":     req.Name,
 	})
-
 	if err := e.App.Save(record); err != nil {
 		return e.BadRequestError("Could not create user", err)
 	}
 
-// 	if err := e.App.SendEmailVerification(record); err != nil {
-// }
+	if err := mails.SendRecordVerification(e.App, record); err != nil {
+		return e.BadRequestError("Could not send verification email", err)
+	}
 
 	return e.JSON(http.StatusCreated, record.PublicExport())
 }
@@ -75,35 +74,34 @@ func PathCheck(e *core.RequestEvent) error {
 	})
 }
 
-
 func LoginUser(e *core.RequestEvent) error {
-    var req LoginRequest
-    if err := json.NewDecoder(e.Request.Body).Decode(&req); err != nil {
-        return e.BadRequestError("Invalid request body", err)
-    }
+	var req LoginRequest
+	if err := json.NewDecoder(e.Request.Body).Decode(&req); err != nil {
+		return e.BadRequestError("Invalid request body", err)
+	}
 
-    if req.Email == "" || req.Password == "" {
-        return e.BadRequestError("Email and password required", nil)
-    }
+	if req.Email == "" || req.Password == "" {
+		return e.BadRequestError("Email and password required", nil)
+	}
 
-    // Find user by email
-    record, err := e.App.FindFirstRecordByData("users", "email", req.Email)
-    if err != nil {
-        return e.BadRequestError("Invalid email or password", nil)
-    }
+	// Find user by email
+	record, err := e.App.FindFirstRecordByData("users", "email", req.Email)
+	if err != nil {
+		return e.BadRequestError("Invalid email or password", nil)
+	}
 
-    // Check password (assuming plain text for example; use hashing in production)
-    if record.GetString("password") != req.Password {
-        return e.BadRequestError("Invalid email or password", nil)
-    }
+	// Check password (assuming plain text for example; use hashing in production)
+	if record.GetString("password") != req.Password {
+		return e.BadRequestError("Invalid email or password", nil)
+	}
 
-    // // Optionally check if email is verified
-    // if !record.GetBool("verified") {
-    //     return e.BadRequestError("Email not verified", nil)
-    // }
+	// // Optionally check if email is verified
+	// if !record.GetBool("verified") {
+	//     return e.BadRequestError("Email not verified", nil)
+	// }
 
-    return e.JSON(http.StatusOK, map[string]any{
-        "message": "Login successful",
-        "user":    record.PublicExport(),
-    })
+	return e.JSON(http.StatusOK, map[string]any{
+		"message": "Login successful",
+		"user":    record.PublicExport(),
+	})
 }

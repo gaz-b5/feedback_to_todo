@@ -3,6 +3,7 @@ package main
 import (
 	// "context"
 	// "fmt"
+	"David/qdrant_api"
 	"David/routes"
 	"log"
 	"os"
@@ -13,9 +14,13 @@ import (
 
 	// "github.com/anush008/fastembed-go"
 	// "github.com/joho/godotenv"
+	"github.com/joho/godotenv"
 	"github.com/pocketbase/pocketbase"
+	"github.com/qdrant/go-client/qdrant"
+
 	// "github.com/pocketbase/pocketbase/apis"
 	"github.com/pocketbase/pocketbase/core"
+	"github.com/pocketbase/pocketbase/mails"
 	"github.com/pocketbase/pocketbase/plugins/migratecmd"
 	// "github.com/qdrant/go-client/qdrant"
 	// "David/qdrant_api"
@@ -24,6 +29,27 @@ import (
 
 
 func main() {
+
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatalf("Error loading .env file")
+	}
+
+	dbKey := os.Getenv("QDRANT_DB_KEY")
+
+	// Create a new Qdrant client with API key authentication and TLS enabled
+	client, err := qdrant.NewClient(&qdrant.Config{
+		Host:   "ec9d9f59-6f8c-4cdc-ae05-fa7bc0a465e7.us-west-2-0.aws.cloud.qdrant.io",
+		Port:   6334,
+		APIKey: dbKey,
+		UseTLS: true,
+	})
+	if err != nil {
+		panic(err)
+	}
+
+	qdrant_api.Client=client //Singleton
+
 	app := pocketbase.New()
 
 	 // loosely check if it was executed using "go run"
@@ -43,23 +69,7 @@ func main() {
 	if err := app.Start(); err != nil {
 		log.Fatal(err)
 	}
-	// err := godotenv.Load()
-	// if err != nil {
-	// 	log.Fatalf("Error loading .env file")
-	// }
-
-	// dbKey := os.Getenv("QDRANT_DB_KEY")
-
-	// // Create a new Qdrant client with API key authentication and TLS enabled
-	// client, err := qdrant.NewClient(&qdrant.Config{
-	// 	Host:   "ec9d9f59-6f8c-4cdc-ae05-fa7bc0a465e7.us-west-2-0.aws.cloud.qdrant.io",
-	// 	Port:   6334,
-	// 	APIKey: dbKey,
-	// 	UseTLS: true,
-	// })
-	// if err != nil {
-	// 	panic(err)
-	// }
+	
 
 	// collections, err := client.ListCollections(context.Background())
 	// if err != nil {

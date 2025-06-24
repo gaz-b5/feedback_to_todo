@@ -3,17 +3,19 @@ package qdrant_api
 import (
 	"context"
 	"fmt"
-	"log"
+	// "log"
 	"strconv"
-	"strings"
+	// "strings"
 	"time"
 
 	"github.com/qdrant/go-client/qdrant"
-	"github.com/tmc/langchaingo/llms"
-	"github.com/tmc/langchaingo/llms/openai"
+	// "github.com/tmc/langchaingo/llms"
+	// "github.com/tmc/langchaingo/llms/openai"
 	dp "David/data_point"
-	llm "David/llm_functions"
+	// llm "David/llm_functions"
 )
+
+var Client *qdrant.Client
 
 func UpdateAndCreateDataPoint(client *qdrant.Client, dataPoint dp.DataPoint, id int, collectionId string) {
 	point := &qdrant.PointStruct{
@@ -26,7 +28,7 @@ func UpdateAndCreateDataPoint(client *qdrant.Client, dataPoint dp.DataPoint, id 
 			},
 		},
 		Payload: qdrant.NewValueMap(map[string]any{
-			strconv.Itoa(id): CreatePayload(dataPoint),
+			strconv.Itoa(id): CreateQdrantPayload(dataPoint),
 		}),
 	}
 
@@ -52,7 +54,7 @@ func CreateQdrantPayload(data dp.DataPoint) map[string]any {
 }
 
 func CreateCollection(client *qdrant.Client, collectionName string) error {
-	_, err := client.CreateCollection(context.Background(), &qdrant.CreateCollection{
+	 	err := client.CreateCollection(context.Background(), &qdrant.CreateCollection{
 		CollectionName: collectionName,
 		VectorsConfig: qdrant.NewVectorsConfig(&qdrant.VectorParams{
 			Size:     384, // Adjust to your embedding size
