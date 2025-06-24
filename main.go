@@ -22,15 +22,6 @@ import (
 	// "github.com/tmc/langchaingo/llms/openai"
 )
 
-// type DataPoint struct {
-// 	Content   string
-// 	IsBug     bool
-// 	RepCount  int
-// 	Priority  float32
-// 	Timestamp time.Time
-// 	Status    Status
-// 	Embedding []float32
-// }
 
 func main() {
 	app := pocketbase.New()
