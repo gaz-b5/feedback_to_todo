@@ -20,7 +20,7 @@ import (
 
 	// "github.com/pocketbase/pocketbase/apis"
 	"github.com/pocketbase/pocketbase/core"
-	"github.com/pocketbase/pocketbase/mails"
+	// "github.com/pocketbase/pocketbase/mails"
 	"github.com/pocketbase/pocketbase/plugins/migratecmd"
 	// "github.com/qdrant/go-client/qdrant"
 	// "David/qdrant_api"
@@ -64,6 +64,7 @@ func main() {
 	app.OnServe().BindFunc(func(se *core.ServeEvent) error {
 		// serves static files from the provided public dir (if exists)
 		routes.RegisterUserRoutes(se)
+		routes.RegisterFormRoutes(se)
 		return se.Next()
 	})
 	if err := app.Start(); err != nil {
