@@ -48,7 +48,7 @@ func main() {
 		panic(err)
 	}
 
-	qdrant_api.Client=client //Singleton
+	qdrant_api.CLIENT=client //Singleton
 
 	app := pocketbase.New()
 

@@ -15,9 +15,9 @@ import (
 	// llm "David/llm_functions"
 )
 
-var Client *qdrant.Client
+var CLIENT *qdrant.Client
 
-func UpdateAndCreateDataPoint(client *qdrant.Client, dataPoint dp.DataPoint, id int, collectionId string) {
+func UpdateAndCreateDataPoint(dataPoint dp.DataPoint, id int, collectionId string) {
 	point := &qdrant.PointStruct{
 		Id: qdrant.NewIDNum(uint64(id)),
 		Vectors: &qdrant.Vectors{
@@ -33,7 +33,7 @@ func UpdateAndCreateDataPoint(client *qdrant.Client, dataPoint dp.DataPoint, id 
 	}
 
 	ctx := context.Background()
-	_, err := client.Upsert(ctx, &qdrant.UpsertPoints{
+	_, err := CLIENT.Upsert(ctx, &qdrant.UpsertPoints{
 		CollectionName: collectionId,
 		Points:         []*qdrant.PointStruct{point},
 	})
@@ -53,8 +53,9 @@ func CreateQdrantPayload(data dp.DataPoint) map[string]any {
 	}
 }
 
-func CreateCollection(client *qdrant.Client, collectionName string) error {
-	 	err := client.CreateCollection(context.Background(), &qdrant.CreateCollection{
+//qdrant collection name will be the same as project name
+func CreateCollection(collectionName string) error {
+	 	err := CLIENT.CreateCollection(context.Background(), &qdrant.CreateCollection{
 		CollectionName: collectionName,
 		VectorsConfig: qdrant.NewVectorsConfig(&qdrant.VectorParams{
 			Size:     384, // Adjust to your embedding size

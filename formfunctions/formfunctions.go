@@ -5,6 +5,7 @@ import (
     "net/http"
 
     "github.com/pocketbase/pocketbase/core"
+	"David/qdrant_api"
 )
 
 type ProjectInput struct {
@@ -41,6 +42,10 @@ func CreateProject(e *core.RequestEvent) error {
     if err != nil {
         return e.InternalServerError("Projects collection not found", err)
     }
+	join_collection, err := e.App.FindCollectionByNameOrId("users_projects")
+	if err != nil {
+        return e.InternalServerError("users_projects collection not found", err)
+    }
 
     // Use core.NewRecord (not models.NewRecord)
     record := core.NewRecord(collection)
@@ -48,8 +53,20 @@ func CreateProject(e *core.RequestEvent) error {
     record.Set("owner_id", user.Id) // or whatever field links to the user
 
     if err := e.App.Save(record); err != nil {
-        return e.InternalServerError("Failed to create project", err)
+        return e.InternalServerError("Failed to create project : projects", err)
     }
+
+	join_record := core.NewRecord(join_collection)
+    join_record.Set("user_id", user.Id) // or whatever field links to the user
+    join_record.Set("project", record.Id)
+	join_record.Set("role", "admin")
+
+	if err := e.App.Save(join_record); err != nil {
+        return e.InternalServerError("Failed to create project : users_projects", err)
+    }
+
+	//create qdrant collection
+	qdrant_api.CreateCollection(input.Name)
 
     // 5. Respond with success
     return e.JSON(http.StatusCreated, map[string]any{
