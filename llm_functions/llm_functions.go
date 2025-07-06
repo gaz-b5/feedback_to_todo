@@ -12,7 +12,11 @@ import (
 	"github.com/tmc/langchaingo/llms/openai"
 )
 
-func GetTasks(query string, llm *openai.LLM) []string {
+var LLM *openai.LLM
+
+var MODEL *fastembed.Embedding
+
+func GetTasks(query string) []string {
 	// Define the prompt for the LLM
 	prompt := `You are a task extraction assistant. Given the email report from a customer, extract the tasks and their details to be sent to the engineering team. Do not add any greeting or ending sentence, stick to the format given, do not add any index like "Task1=", etc. The tasks should be in the following format,where the <bool> implies a bool value which is true if the task is reported bug, or if it is a requested feature:
 	<task>=<bool>;<task>=<bool>;...`
@@ -22,7 +26,7 @@ func GetTasks(query string, llm *openai.LLM) []string {
 	fullPrompt := prompt + "\n\nCustomer Message:\n" + query
 
 	// Use the correct Call method
-	completion, err := llm.Call(ctx, fullPrompt,
+	completion, err := LLM.Call(ctx, fullPrompt,
 		llms.WithTemperature(0.1),
 	)
 	if err != nil {
@@ -34,15 +38,15 @@ func GetTasks(query string, llm *openai.LLM) []string {
 	return strings.Split(completion, ";")
 }
 
-func CompareStrings(a string, b string, llm *openai.LLM) bool {
-	prompt := `You are a string comparison assistant. Given two string, determine if they are similar or not, that is are both the strings pointing out the same issue or not. Respond with "true" if they are similar and "false" if they are not.`
+func CompareStrings(a string, b string) bool {
+	prompt := `You are a string comparison assistant. Given two strings, determine if they are similar or not, that is are both the strings pointing out the same issue or not. Respond with "true" if they are similar and "false" if they are not.`
 
 	ctx := context.Background()
 
 	fullPrompt := prompt + "\n\nString 1:\n" + a + "\n\nString 2:\n" + b
 
 	// Use the correct Call method
-	completion, err := llm.Call(ctx, fullPrompt,
+	completion, err := LLM.Call(ctx, fullPrompt,
 		llms.WithTemperature(0.1),
 	)
 	if err != nil {
@@ -64,7 +68,7 @@ func ExpandTask(task string, llm *openai.LLM) string {
 	fullPrompt := prompt + "\n\nTask:\n" + task
 
 	// Use the correct Call method
-	completion, err := llm.Call(ctx, fullPrompt,
+	completion, err := LLM.Call(ctx, fullPrompt,
 		llms.WithTemperature(0.1),
 	)
 	if err != nil {

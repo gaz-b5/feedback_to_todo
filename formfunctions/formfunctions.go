@@ -147,3 +147,5 @@ func AddUserToProjectByEmail(e *core.RequestEvent) error {
         "membership": joinRecord.PublicExport(),
     })
 }
+
+

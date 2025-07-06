@@ -5,6 +5,7 @@ import (
 	// "fmt"
 	"David/qdrant_api"
 	"David/routes"
+	"David/llm_functions"
 	"log"
 	"os"
 
@@ -12,8 +13,7 @@ import (
 	"strings"
 	// "time"
 
-	// "github.com/anush008/fastembed-go"
-	// "github.com/joho/godotenv"
+	"github.com/anush008/fastembed-go"
 	"github.com/joho/godotenv"
 	"github.com/pocketbase/pocketbase"
 	"github.com/qdrant/go-client/qdrant"
@@ -24,7 +24,7 @@ import (
 	"github.com/pocketbase/pocketbase/plugins/migratecmd"
 	// "github.com/qdrant/go-client/qdrant"
 	// "David/qdrant_api"
-	// "github.com/tmc/langchaingo/llms/openai"
+	"github.com/tmc/langchaingo/llms/openai"
 )
 
 
@@ -50,10 +50,37 @@ func main() {
 
 	qdrant_api.CLIENT=client //Singleton
 
+	apiKey := os.Getenv("GROQ_API_KEY")
+
+	// init grok llm
+	llm, err := openai.New(
+		openai.WithModel("llama3-8b-8192"),
+		openai.WithBaseURL("https://api.groq.com/openai/v1"),
+		openai.WithToken(apiKey),
+	)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	llm_functions.LLM = llm
+
 	app := pocketbase.New()
 
 	 // loosely check if it was executed using "go run"
     isGoRun := strings.HasPrefix(os.Args[0], os.TempDir())
+
+	// init embedder model
+	options := fastembed.InitOptions{
+		Model:     fastembed.BGESmallEN, // Correct identifier
+		CacheDir:  "models",
+		MaxLength: 512,
+	}
+	embedder, err := fastembed.NewFlagEmbedding(&options)
+	if err != nil {
+		panic(fmt.Sprintf("Model initialization failed: %v", err))
+	}
+	llm_functions.MODEL = embedder
+	defer embedder.Destroy()
 
     migratecmd.MustRegister(app, app.RootCmd, migratecmd.Config{
         // enable auto creation of migration files when making collection changes in the Dashboard
@@ -65,12 +92,14 @@ func main() {
 		// serves static files from the provided public dir (if exists)
 		routes.RegisterUserRoutes(se)
 		routes.RegisterFormRoutes(se)
+		routes.RegisterEHandlerRoutes(se)
 		return se.Next()
 	})
 	if err := app.Start(); err != nil {
 		log.Fatal(err)
 	}
 	
+
 
 	// collections, err := client.ListCollections(context.Background())
 	// if err != nil {
@@ -80,32 +109,13 @@ func main() {
 	// fmt.Println(collections)
 	// defer client.Close()
 
-	// apiKey := os.Getenv("GROQ_API_KEY")
-
-	// llm, err := openai.New(
-	// 	openai.WithModel("llama3-8b-8192"),
-	// 	openai.WithBaseURL("https://api.groq.com/openai/v1"),
-	// 	openai.WithToken(apiKey),
-	// )
-	// if err != nil {
-	// 	log.Fatal(err)
-	// }
-
 	// query := "Hi Team, I’ve been facing a couple of issues with the app recently. First, the app crashes every time I try to log in, especially when my internet connection is slow. Also, push notifications seem to have stopped working entirely after the last update, even though they’re enabled in the settings. On another note, it would be great if you could add a dark mode option to make the app easier to use at night. Please let me know if you need more details to look into these issues.Thanks,[Customer Name]"
 
 	// tasks := qdrant_api.GetTasks(query, llm)
 
-	// options := fastembed.InitOptions{
-	// 	Model:     fastembed.BGESmallEN, // Correct identifier
-	// 	CacheDir:  "models",
-	// 	MaxLength: 512,
-	// }
+	
 
-	// embedder, err := fastembed.NewFlagEmbedding(&options)
-	// if err != nil {
-	// 	panic(fmt.Sprintf("Model initialization failed: %v", err))
-	// }
-	// defer embedder.Destroy()
+	
 
 	// for _, task := range tasks {
 	// 	isBug := false
