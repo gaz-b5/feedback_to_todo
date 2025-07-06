@@ -12,6 +12,8 @@ type ProjectInput struct {
     Name string `json:"name"`
 }
 
+
+
 func CreateProject(e *core.RequestEvent) error {
     // 1. Get the authenticated user (now e.Auth)
     user := e.Auth
@@ -72,5 +74,76 @@ func CreateProject(e *core.RequestEvent) error {
     return e.JSON(http.StatusCreated, map[string]any{
         "message": "Project created successfully",
         "project": record.PublicExport(),
+    })
+}
+
+type AddUserByEmailInput struct {
+    ProjectId string `json:"project_id"`
+    Email     string `json:"email"`
+    Role      string `json:"role"` // "admin" or "viewer"
+}
+
+// Handler: Only allow if the requester is an admin for the project
+func AddUserToProjectByEmail(e *core.RequestEvent) error {
+    requestingUser := e.Auth
+    if requestingUser == nil {
+        return e.UnauthorizedError("Not authenticated", nil)
+    }
+
+    // Parse input
+    var input AddUserByEmailInput
+    if err := json.NewDecoder(e.Request.Body).Decode(&input); err != nil {
+        return e.BadRequestError("Invalid request body", err)
+    }
+    if input.ProjectId == "" || input.Email == "" || (input.Role != "admin" && input.Role != "viewer") {
+        return e.BadRequestError("Missing or invalid fields", nil)
+    }
+
+    // 1. Check if the requesting user is an admin for this project
+    filter := "project = {:project} && user_id = {:user_id} && role = {:role}"
+    params := map[string]any{
+        "project": input.ProjectId,
+        "user_id":    requestingUser.Id,
+        "role":    "admin",
+    }
+    adminRecord, err := e.App.FindFirstRecordByFilter("users_projects", filter, params)
+    if err != nil || adminRecord == nil {
+        return e.ForbiddenError("You are not an admin for this project", nil)
+    }
+
+    // 2. Find the user to add by email
+    userToAdd, err := e.App.FindAuthRecordByEmail("users", input.Email)
+    if err != nil || userToAdd == nil {
+        return e.BadRequestError("No user found with that email", err)
+    }
+
+    // 3. Check if the user is already a member
+    filter = "project = {:project} && user_id = {:user}"
+    params = map[string]any{
+        "project": input.ProjectId,
+        "user_id":    userToAdd.Id,
+    }
+    existing, _ := e.App.FindFirstRecordByFilter("users_projects", filter, params)
+    if existing != nil {
+        return e.BadRequestError("User is already a member of this project", nil)
+    }
+
+    // 4. Add the user to the project
+    joinCollection, err := e.App.FindCollectionByNameOrId("users_projects")
+    if err != nil {
+        return e.InternalServerError("users_projects collection not found", err)
+    }
+    joinRecord := core.NewRecord(joinCollection)
+    joinRecord.Set("project", input.ProjectId)
+    joinRecord.Set("user_id", userToAdd.Id)
+    joinRecord.Set("role", input.Role)
+
+    if err := e.App.Save(joinRecord); err != nil {
+        return e.InternalServerError("Failed to add user to project", err)
+    }
+
+    return e.JSON(http.StatusCreated, map[string]any{
+        "message": "User added to project",
+        "membership": joinRecord.PublicExport(),
     })
 }

@@ -44,6 +44,7 @@ func UpdateAndCreateDataPoint(dataPoint dp.DataPoint, id int, collectionId strin
 
 func CreateQdrantPayload(data dp.DataPoint) map[string]any {
 	return map[string]any{
+		// ""
 		"Content":   data.Content,
 		"IsBug":     strconv.FormatBool(data.IsBug),
 		"RepCount":  strconv.Itoa(data.RepCount),
