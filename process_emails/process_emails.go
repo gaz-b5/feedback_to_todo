@@ -104,6 +104,19 @@ func ProcessEmailContent(e *core.RequestEvent) error {
 				if err := e.App.Save(taskRecord); err != nil {
 					e.BadRequestError("Could not update taskRecord", err)
 				}
+
+				joinCollection, err := e.App.FindCollectionByNameOrId("emails_tasks")
+				if err != nil {
+					return e.InternalServerError("emails_tasks collection not found", err)
+				}
+				joinRecord := core.NewRecord(joinCollection)
+				joinRecord.Set("email", record.Id)
+				joinRecord.Set("task", taskRecord.Id)
+
+				if err := e.App.Save(joinRecord); err != nil {
+					return e.InternalServerError("Failed to add email to task", err)
+				}
+
 			} else {
 				tasksCollection, err := e.App.FindCollectionByNameOrId("tasks")
 				if err != nil {
@@ -129,6 +142,18 @@ func ProcessEmailContent(e *core.RequestEvent) error {
 				}
 				dataPoint.TaskID = newTask.Id
 				qdrant_api.UpdateAndCreateDataPoint(dataPoint, projectName)
+
+				joinCollection, err := e.App.FindCollectionByNameOrId("emails_tasks")
+				if err != nil {
+					return e.InternalServerError("emails_tasks collection not found", err)
+				}
+				joinRecord := core.NewRecord(joinCollection)
+				joinRecord.Set("email", record.Id)
+				joinRecord.Set("task", newTask.Id)
+
+				if err := e.App.Save(joinRecord); err != nil {
+					return e.InternalServerError("Failed to add email to task", err)
+				}
 			}
 		} else {
 			tasksCollection, err := e.App.FindCollectionByNameOrId("tasks")
@@ -155,6 +180,18 @@ func ProcessEmailContent(e *core.RequestEvent) error {
 			}
 			dataPoint.TaskID = newTask.Id
 			qdrant_api.UpdateAndCreateDataPoint(dataPoint, projectName)
+
+			joinCollection, err := e.App.FindCollectionByNameOrId("emails_tasks")
+			if err != nil {
+				return e.InternalServerError("emails_tasks collection not found", err)
+			}
+			joinRecord := core.NewRecord(joinCollection)
+			joinRecord.Set("email", record.Id)
+			joinRecord.Set("task", newTask.Id)
+
+			if err := e.App.Save(joinRecord); err != nil {
+				return e.InternalServerError("Failed to add email to task", err)
+			}
 
 		}
 	}
