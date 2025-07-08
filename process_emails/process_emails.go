@@ -84,12 +84,12 @@ func ProcessEmailContent(e *core.RequestEvent) error {
 		projectName := project.GetString("name")
 
 		// Use projectName as the Qdrant collection name
-		taskId, numResults := qdrant_api.ReturnClosestTaskID(projectName, limit, dataPoint.Embedding)
+		TaskID, numResults := qdrant_api.ReturnClosestTaskID(projectName, limit, dataPoint.Embedding)
 
 		if numResults > 0 {
-			taskRecord, err := e.App.FindRecordById("tasks", taskId)
+			taskRecord, err := e.App.FindRecordById("tasks", TaskID)
 			if err != nil {
-				e.BadRequestError("Task Record not found", err)
+				return e.BadRequestError("Task Record not found", err)
 			}
 			description := taskRecord.GetString("description")
 
@@ -124,13 +124,11 @@ func ProcessEmailContent(e *core.RequestEvent) error {
 				// newTask.Set("embedding", dataPoint.Embedding)
 				newTask.Set("project", input.ProjectId)
 
-				// dataPoint.TaskID = newTask.Id
-
-				// qdrant_api.UpdateAndCreateDataPoint(dataPoint, projectName)
-
 				if err := e.App.Save(newTask); err != nil {
 					return e.InternalServerError("Could not create new task", err)
 				}
+				dataPoint.TaskID = newTask.Id
+				qdrant_api.UpdateAndCreateDataPoint(dataPoint, projectName)
 			}
 		} else {
 			tasksCollection, err := e.App.FindCollectionByNameOrId("tasks")
@@ -152,13 +150,12 @@ func ProcessEmailContent(e *core.RequestEvent) error {
 			// newTask.Set("embedding", dataPoint.Embedding)
 			newTask.Set("project", input.ProjectId)
 
-			// dataPoint.TaskID = newTask.Id
-
-			// qdrant_api.UpdateAndCreateDataPoint(dataPoint, projectName)
-
 			if err := e.App.Save(newTask); err != nil {
 				return e.InternalServerError("Could not create new task", err)
 			}
+			dataPoint.TaskID = newTask.Id
+			qdrant_api.UpdateAndCreateDataPoint(dataPoint, projectName)
+
 		}
 	}
 

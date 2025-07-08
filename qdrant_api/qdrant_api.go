@@ -2,7 +2,7 @@ package qdrant_api
 
 import (
 	"context"
-	// "fmt"
+	"fmt"
 	// "log"
 	// "strconv"
 	// "strings"
@@ -18,8 +18,16 @@ import (
 var CLIENT *qdrant.Client
 
 func UpdateAndCreateDataPoint(dataPoint dp.DataPoint, collectionId string) {
+
+	countResponse, err := CLIENT.Count(context.Background(), &qdrant.CountPoints{
+		CollectionName: collectionId,
+	})
+	if err != nil {
+		panic(err)
+	}
+
 	point := &qdrant.PointStruct{
-		// Id: qdrant.NewIDNum(uint64(id)),
+		Id: qdrant.NewIDNum(uint64(countResponse) + 1),
 		Vectors: &qdrant.Vectors{
 			VectorsOptions: &qdrant.Vectors_Vector{
 				Vector: &qdrant.Vector{
@@ -28,12 +36,12 @@ func UpdateAndCreateDataPoint(dataPoint dp.DataPoint, collectionId string) {
 			},
 		},
 		Payload: qdrant.NewValueMap(map[string]any{
-			"task": CreateQdrantPayload(dataPoint),
+			"TaskID": dataPoint.TaskID,
 		}),
 	}
 
 	ctx := context.Background()
-	_, err := CLIENT.Upsert(ctx, &qdrant.UpsertPoints{
+	_, err = CLIENT.Upsert(ctx, &qdrant.UpsertPoints{
 		CollectionName: collectionId,
 		Points:         []*qdrant.PointStruct{point},
 	})
@@ -44,7 +52,7 @@ func UpdateAndCreateDataPoint(dataPoint dp.DataPoint, collectionId string) {
 
 func CreateQdrantPayload(data dp.DataPoint) map[string]any {
 	return map[string]any{
-		"taskId": data.TaskID,
+		"TaskID": data.TaskID,
 		// "Content":   data.Content,
 		// "IsBug":     strconv.FormatBool(data.IsBug),
 		// "RepCount":  strconv.Itoa(data.RepCount),
@@ -79,17 +87,23 @@ func ReturnClosestTaskID(collectionName string, limit uint64, embedding []float3
 		panic(err)
 	}
 
-	var result map[string]*qdrant.Value
-	if len(results) > 0 {
-		for _, value := range results[0].GetPayload() {
-			result = value.GetStructValue().GetFields()
-		}
-	}
+	// var result map[string]*qdrant.Value
+	// if len(results) > 0 {
+	// 	for _, value := range results[0].GetPayload() {
+	// 		result = value.GetStructValue().GetFields()
+	// 	}
+	// }
 
 	taskId := ""
-	if result != nil {
-		taskId = result["taskId"].GetStringValue()
+	if len(results) > 0 {
+		payload := results[0].GetPayload()
+		if val, ok := payload["TaskID"]; ok {
+			taskId = val.GetStringValue()
+		} else {
+			panic("Closest task found but could not get payload")
+		}
 	}
+	fmt.Println(taskId)
 
 	numResults := len(results)
 	return taskId, numResults
