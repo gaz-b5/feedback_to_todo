@@ -77,7 +77,7 @@ func main() {
 	}
 	embedder, err := fastembed.NewFlagEmbedding(&options)
 	if err != nil {
-		panic(fmt.Sprintf("Model initialization failed: %v", err))
+		panic(err)
 	}
 	llm_functions.MODEL = embedder
 	defer embedder.Destroy()

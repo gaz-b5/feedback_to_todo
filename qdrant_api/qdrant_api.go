@@ -2,11 +2,11 @@ package qdrant_api
 
 import (
 	"context"
-	"fmt"
+	// "fmt"
 	// "log"
-	"strconv"
+	// "strconv"
 	// "strings"
-	"time"
+	// "time"
 
 	"github.com/qdrant/go-client/qdrant"
 	// "github.com/tmc/langchaingo/llms"
@@ -17,9 +17,9 @@ import (
 
 var CLIENT *qdrant.Client
 
-func UpdateAndCreateDataPoint(dataPoint dp.DataPoint, id int, collectionId string) {
+func UpdateAndCreateDataPoint(dataPoint dp.DataPoint, collectionId string) {
 	point := &qdrant.PointStruct{
-		Id: qdrant.NewIDNum(uint64(id)),
+		// Id: qdrant.NewIDNum(uint64(id)),
 		Vectors: &qdrant.Vectors{
 			VectorsOptions: &qdrant.Vectors_Vector{
 				Vector: &qdrant.Vector{
@@ -28,7 +28,7 @@ func UpdateAndCreateDataPoint(dataPoint dp.DataPoint, id int, collectionId strin
 			},
 		},
 		Payload: qdrant.NewValueMap(map[string]any{
-			strconv.Itoa(id): CreateQdrantPayload(dataPoint),
+			"task": CreateQdrantPayload(dataPoint),
 		}),
 	}
 
@@ -44,19 +44,19 @@ func UpdateAndCreateDataPoint(dataPoint dp.DataPoint, id int, collectionId strin
 
 func CreateQdrantPayload(data dp.DataPoint) map[string]any {
 	return map[string]any{
-		// ""
-		"Content":   data.Content,
-		"IsBug":     strconv.FormatBool(data.IsBug),
-		"RepCount":  strconv.Itoa(data.RepCount),
-		"Priority":  fmt.Sprintf("%.2f", data.Priority),
-		"Timestamp": data.Timestamp.Format(time.RFC3339),
-		"Status":    data.Status.String(),
+		"taskId": data.TaskID,
+		// "Content":   data.Content,
+		// "IsBug":     strconv.FormatBool(data.IsBug),
+		// "RepCount":  strconv.Itoa(data.RepCount),
+		// "Priority":  fmt.Sprintf("%.2f", data.Priority),
+		// "Timestamp": data.Timestamp.Format(time.RFC3339),
+		// "Status":    data.Status.String(),
 	}
 }
 
-//qdrant collection name will be the same as project name
+// qdrant collection name will be the same as project name
 func CreateCollection(collectionName string) error {
-	 	err := CLIENT.CreateCollection(context.Background(), &qdrant.CreateCollection{
+	err := CLIENT.CreateCollection(context.Background(), &qdrant.CreateCollection{
 		CollectionName: collectionName,
 		VectorsConfig: qdrant.NewVectorsConfig(&qdrant.VectorParams{
 			Size:     384, // Adjust to your embedding size
@@ -64,4 +64,33 @@ func CreateCollection(collectionName string) error {
 		}),
 	})
 	return err
+}
+
+func ReturnClosestTaskID(collectionName string, limit uint64, embedding []float32) (string, int) {
+
+	results, err := CLIENT.Query(context.Background(), &qdrant.QueryPoints{
+		CollectionName: collectionName,
+		Query:          qdrant.NewQuery(embedding...),
+		Limit:          &limit,
+		WithPayload:    qdrant.NewWithPayload(true),
+		WithVectors:    qdrant.NewWithVectors(true),
+	})
+	if err != nil {
+		panic(err)
+	}
+
+	var result map[string]*qdrant.Value
+	if len(results) > 0 {
+		for _, value := range results[0].GetPayload() {
+			result = value.GetStructValue().GetFields()
+		}
+	}
+
+	taskId := ""
+	if result != nil {
+		taskId = result["taskId"].GetStringValue()
+	}
+
+	numResults := len(results)
+	return taskId, numResults
 }

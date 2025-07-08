@@ -27,6 +27,7 @@ type DataPoint struct {
 	Timestamp time.Time
 	Status    Status
 	Embedding []float32
+	TaskID	  string
 }
 
 

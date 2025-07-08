@@ -10,11 +10,13 @@ import (
 
 	"github.com/tmc/langchaingo/llms"
 	"github.com/tmc/langchaingo/llms/openai"
+	"github.com/anush008/fastembed-go"
+
 )
 
 var LLM *openai.LLM
 
-var MODEL *fastembed.Embedding
+var MODEL *fastembed.FlagEmbedding
 
 func GetTasks(query string) []string {
 	// Define the prompt for the LLM
@@ -58,7 +60,7 @@ func CompareStrings(a string, b string) bool {
 	return strings.ToLower(completion) == "true"
 }
 
-func ExpandTask(task string, llm *openai.LLM) string {
+func ExpandTask(task string) string {
 	// Define the prompt for the LLM
 	// TODO: Want to make it so that the llm can get the actual values from all task history.
 	prompt := `You are a task expansion assistant. Given a task, expand it to include more details and context. Make it 30 to 40 words long. Just simply respond with the expanded task. Avoid any greeting or ending sentence. Do not use placeholder variables for unknown values.`
@@ -79,3 +81,12 @@ func ExpandTask(task string, llm *openai.LLM) string {
 
 	return completion
 }
+
+func GenerateEmbedding(query string) []float32 {
+	embedding, err := MODEL.Embed([]string{query}, 25)
+	if err != nil {
+		panic(fmt.Sprintf("Embedding failed: %v", err))
+	}
+	return embedding[0]
+}
+
