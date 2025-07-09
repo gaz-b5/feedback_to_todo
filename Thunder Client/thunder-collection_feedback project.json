@@ -2,7 +2,7 @@
     "clientName": "Thunder Client",
     "collectionName": "feedback project",
     "collectionId": "d70aa151-7cf9-497f-b6d1-ef0d20ffa038",
-    "dateExported": "2025-07-09T05:50:35.220Z",
+    "dateExported": "2025-07-09T06:31:07.330Z",
     "version": "1.2",
     "folders": [],
     "requests": [
@@ -38,7 +38,7 @@
             "method": "POST",
             "sortNum": 20000,
             "created": "2025-07-09T05:48:23.964Z",
-            "modified": "2025-07-09T05:48:23.964Z",
+            "modified": "2025-07-09T06:21:41.833Z",
             "headers": [
                 {
                     "name": "Content-Type",
@@ -51,7 +51,7 @@
             ],
             "body": {
                 "type": "json",
-                "raw": "{\r\n  \"name\": \"Test Project6876\"\r\n}\r\n",
+                "raw": "{\n  \"name\": \"Test Project6876\"\n}\n",
                 "form": []
             }
         },
@@ -87,7 +87,7 @@
             "method": "POST",
             "sortNum": 30000,
             "created": "2025-07-09T05:48:23.966Z",
-            "modified": "2025-07-09T05:48:23.966Z",
+            "modified": "2025-07-09T06:28:12.839Z",
             "headers": [
                 {
                     "name": "Content-Type",
@@ -95,12 +95,12 @@
                 },
                 {
                     "name": "Authorization",
-                    "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjb2xsZWN0aW9uSWQiOiJfcGJfdXNlcnNfYXV0aF8iLCJleHAiOjE3NTI0MDczNzQsImlkIjoiMjU4M2R3YXk4dDhkcXM1IiwicmVmcmVzaGFibGUiOnRydWUsInR5cGUiOiJhdXRoIn0.DR_P-uZr4X-lRUigtPcx5a_nHQsgK8qVzyavk-Zqc5U"
+                    "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjb2xsZWN0aW9uSWQiOiJfcGJfdXNlcnNfYXV0aF8iLCJleHAiOjE3NTI2NDcyNzksImlkIjoiMjU4M2R3YXk4dDhkcXM1IiwicmVmcmVzaGFibGUiOnRydWUsInR5cGUiOiJhdXRoIn0.bFA7vjYfQWcvnHxSocHrd5mG68hEzl3vvIqIq57gjxw"
                 }
             ],
             "body": {
                 "type": "json",
-                "raw": "{\r\n  \"project_id\": \"g7h391r56v44cw4\",\r\n  \"email\": \"testees@gmail.com\",\r\n  \"role\": \"viewer\"\r\n}\r\n",
+                "raw": "{\n  \"project_id\": \"g7h391r56v44cw4\",\n  \"email\": \"testees@gmail.com\",\n  \"role\": \"viewer\"\n}\n",
                 "form": []
             }
         },
@@ -125,7 +125,33 @@
                 "raw": "{\n  \"project_id\": \"vu2nc21gkpy8190\",\n  \"content\": \"Hi Team, I’ve been facing a couple of issues with the app recently. First, the app crashes every time I try to log in, especially when my internet connection is slow. Also, push notifications seem to have stopped working entirely after the last update, even though they’re enabled in the settings. On another note, it would be great if you could add a dark mode option to make the app easier to use at night. Please let me know if you need more details to look into these issues.Thanks,[Customer Name]\"\n}",
                 "form": []
             }
+        },
+        {
+            "_id": "14ba01c3-2eed-49af-8ac3-b62663f28b8f",
+            "colId": "d70aa151-7cf9-497f-b6d1-ef0d20ffa038",
+            "containerId": "",
+            "name": "removeUserFromProject",
+            "url": "http://localhost:8090/api/forms/project/removeUser",
+            "method": "POST",
+            "sortNum": 60000,
+            "created": "2025-07-09T06:07:00.578Z",
+            "modified": "2025-07-09T06:29:18.865Z",
+            "headers": [
+                {
+                    "name": "Content-Type",
+                    "value": "application/json"
+                },
+                {
+                    "name": "Authorization",
+                    "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjb2xsZWN0aW9uSWQiOiJfcGJfdXNlcnNfYXV0aF8iLCJleHAiOjE3NTI2NDczNDYsImlkIjoiMjU4M2R3YXk4dDhkcXM1IiwicmVmcmVzaGFibGUiOnRydWUsInR5cGUiOiJhdXRoIn0.JPPkUY4F8j_DdC1RnN-PX8OYhhCG4dpbipoI3_gmh04"
+                }
+            ],
+            "body": {
+                "type": "json",
+                "raw": "{\n  \"project_id\": \"g7h391r56v44cw4\",\n  \"email\": \"testees@gmail.com\"\n}",
+                "form": []
+            }
         }
     ],
-    "ref": "DR-ZaGh5BEtTeu4BhMD1AHPTWwaOw8RvffLfoicrkmrmT_A8M7woNal5bWdvsOHIJEW9ki9u8lX3zvLZFDgouA"
+    "ref": "DR-ZaGh5BEtTeu4BhMD1AJSzBLqsRuXwUAK_ko4Vu7wvxQXkSQ43u9rhMd4tH439GmfY9M6S6lU6iF48qGQW4A"
 }
