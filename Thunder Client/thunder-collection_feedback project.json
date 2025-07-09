@@ -1,0 +1,131 @@
+{
+    "clientName": "Thunder Client",
+    "collectionName": "feedback project",
+    "collectionId": "d70aa151-7cf9-497f-b6d1-ef0d20ffa038",
+    "dateExported": "2025-07-09T05:50:35.220Z",
+    "version": "1.2",
+    "folders": [],
+    "requests": [
+        {
+            "_id": "d9479f69-39ff-4758-9c0c-ddf7e7629dde",
+            "colId": "d70aa151-7cf9-497f-b6d1-ef0d20ffa038",
+            "containerId": "",
+            "name": "login",
+            "url": "http://localhost:8090/api/collections/users/auth-with-password",
+            "method": "POST",
+            "sortNum": 10000,
+            "created": "2025-07-09T05:48:23.962Z",
+            "modified": "2025-07-09T05:48:23.962Z",
+            "headers": [
+                {
+                    "name": "Authorization",
+                    "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjb2xsZWN0aW9uSWQiOiJfcGJfdXNlcnNfYXV0aF8iLCJleHAiOjE3NTExOTMyMDUsImlkIjoiMjE4aTQ0NGR2NzMzb2V0IiwicmVmcmVzaGFibGUiOnRydWUsInR5cGUiOiJhdXRoIn0.LpS_ieI9F-fapUzMuv02kTWVk4-9-_iro0hSTx7k3j4",
+                    "isDisabled": true
+                }
+            ],
+            "body": {
+                "type": "json",
+                "raw": "{\n  \"identity\": \"testee@gmail.com\",\n  \"password\": \"password\"\n}",
+                "form": []
+            }
+        },
+        {
+            "_id": "5de91c32-28ff-4631-9913-3ea0f58e2aca",
+            "colId": "d70aa151-7cf9-497f-b6d1-ef0d20ffa038",
+            "containerId": "",
+            "name": "createProject",
+            "url": "http://localhost:8090/api/forms/project/new",
+            "method": "POST",
+            "sortNum": 20000,
+            "created": "2025-07-09T05:48:23.964Z",
+            "modified": "2025-07-09T05:48:23.964Z",
+            "headers": [
+                {
+                    "name": "Content-Type",
+                    "value": "application/json"
+                },
+                {
+                    "name": "Authorization",
+                    "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjb2xsZWN0aW9uSWQiOiJfcGJfdXNlcnNfYXV0aF8iLCJleHAiOjE3NTI0MDI4ODQsImlkIjoiMjU4M2R3YXk4dDhkcXM1IiwicmVmcmVzaGFibGUiOnRydWUsInR5cGUiOiJhdXRoIn0.kaganr6vWp9jeMkWOf7sMmQZw1AZtfDB6dd3egnR1pE"
+                }
+            ],
+            "body": {
+                "type": "json",
+                "raw": "{\r\n  \"name\": \"Test Project6876\"\r\n}\r\n",
+                "form": []
+            }
+        },
+        {
+            "_id": "4163ab71-1b3f-4398-946b-594f5d2ee7f0",
+            "colId": "d70aa151-7cf9-497f-b6d1-ef0d20ffa038",
+            "containerId": "",
+            "name": "login 2",
+            "url": "http://localhost:8090/api/collections/users/auth-with-password",
+            "method": "POST",
+            "sortNum": 20000,
+            "created": "2025-07-09T05:48:23.965Z",
+            "modified": "2025-07-09T05:48:23.965Z",
+            "headers": [
+                {
+                    "name": "Authorization",
+                    "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjb2xsZWN0aW9uSWQiOiJfcGJfdXNlcnNfYXV0aF8iLCJleHAiOjE3NTExOTMyMDUsImlkIjoiMjE4aTQ0NGR2NzMzb2V0IiwicmVmcmVzaGFibGUiOnRydWUsInR5cGUiOiJhdXRoIn0.LpS_ieI9F-fapUzMuv02kTWVk4-9-_iro0hSTx7k3j4",
+                    "isDisabled": true
+                }
+            ],
+            "body": {
+                "type": "json",
+                "raw": "{\n  \"identity\": \"testees@gmail.com\",\n  \"password\": \"password\"\n}",
+                "form": []
+            }
+        },
+        {
+            "_id": "01b91c18-52c1-4f5c-95c1-8790107e8502",
+            "colId": "d70aa151-7cf9-497f-b6d1-ef0d20ffa038",
+            "containerId": "",
+            "name": "addUserToProject",
+            "url": "http://localhost:8090/api/forms/project/addUser",
+            "method": "POST",
+            "sortNum": 30000,
+            "created": "2025-07-09T05:48:23.966Z",
+            "modified": "2025-07-09T05:48:23.966Z",
+            "headers": [
+                {
+                    "name": "Content-Type",
+                    "value": "application/json"
+                },
+                {
+                    "name": "Authorization",
+                    "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjb2xsZWN0aW9uSWQiOiJfcGJfdXNlcnNfYXV0aF8iLCJleHAiOjE3NTI0MDczNzQsImlkIjoiMjU4M2R3YXk4dDhkcXM1IiwicmVmcmVzaGFibGUiOnRydWUsInR5cGUiOiJhdXRoIn0.DR_P-uZr4X-lRUigtPcx5a_nHQsgK8qVzyavk-Zqc5U"
+                }
+            ],
+            "body": {
+                "type": "json",
+                "raw": "{\r\n  \"project_id\": \"g7h391r56v44cw4\",\r\n  \"email\": \"testees@gmail.com\",\r\n  \"role\": \"viewer\"\r\n}\r\n",
+                "form": []
+            }
+        },
+        {
+            "_id": "1341794b-a0e3-4ea3-b052-d2108695418f",
+            "colId": "d70aa151-7cf9-497f-b6d1-ef0d20ffa038",
+            "containerId": "",
+            "name": "Submit Feedback",
+            "url": "http://localhost:8090/api/feedback/new",
+            "method": "POST",
+            "sortNum": 40000,
+            "created": "2025-07-09T05:48:23.967Z",
+            "modified": "2025-07-09T05:48:23.967Z",
+            "headers": [
+                {
+                    "name": "Content-Type",
+                    "value": "application/json"
+                }
+            ],
+            "body": {
+                "type": "json",
+                "raw": "{\n  \"project_id\": \"vu2nc21gkpy8190\",\n  \"content\": \"Hi Team, I’ve been facing a couple of issues with the app recently. First, the app crashes every time I try to log in, especially when my internet connection is slow. Also, push notifications seem to have stopped working entirely after the last update, even though they’re enabled in the settings. On another note, it would be great if you could add a dark mode option to make the app easier to use at night. Please let me know if you need more details to look into these issues.Thanks,[Customer Name]\"\n}",
+                "form": []
+            }
+        }
+    ],
+    "ref": "DR-ZaGh5BEtTeu4BhMD1AHPTWwaOw8RvffLfoicrkmrmT_A8M7woNal5bWdvsOHIJEW9ki9u8lX3zvLZFDgouA"
+}
