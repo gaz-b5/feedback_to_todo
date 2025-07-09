@@ -2,19 +2,22 @@ package routes
 
 import (
 	"David/formfunctions"
-	"github.com/pocketbase/pocketbase/core"
 	"github.com/pocketbase/pocketbase/apis"
+	"github.com/pocketbase/pocketbase/core"
 )
 
 // RegisterFormRoutes sets up custom API endpoints for form-related actions.
 func RegisterFormRoutes(e *core.ServeEvent) {
-	// Example: Register a POST route for form submission
 	e.Router.POST("/api/forms/project/new", func(e *core.RequestEvent) error {
 		return formfunctions.CreateProject(e)
 	}).Bind(apis.RequireAuth()) // Require authentication, remove if not needed
 
 	e.Router.POST("/api/forms/project/addUser", func(e *core.RequestEvent) error {
 		return formfunctions.AddUserToProjectByEmail(e)
+	}).Bind(apis.RequireAuth()) // Require authentication, remove if not needed
+
+	e.Router.POST("/api/forms/project/removeUser", func(e *core.RequestEvent) error {
+		return formfunctions.RemoveUserFromProject(e)
 	}).Bind(apis.RequireAuth()) // Require authentication, remove if not needed
 
 	// Example: Register a GET route for fetching form data
