@@ -74,6 +74,13 @@ func CreateCollection(collectionName string) error {
 	return err
 }
 
+// DeleteCollection deletes a Qdrant collection by its name.
+func DeleteCollection(collectionName string) error {
+	ctx := context.Background()
+	err := CLIENT.DeleteCollection(ctx, collectionName)
+	return err
+}
+
 func ReturnClosestTaskID(collectionName string, limit uint64, embedding []float32) (string, int) {
 
 	results, err := CLIENT.Query(context.Background(), &qdrant.QueryPoints{

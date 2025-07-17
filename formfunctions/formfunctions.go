@@ -75,6 +75,65 @@ func CreateProject(e *core.RequestEvent) error {
 	})
 }
 
+func DeleteProject(e *core.RequestEvent) error {
+	// 1. Get the authenticated user (now e.Auth)
+	user := e.Auth
+	if user == nil {
+		return e.UnauthorizedError("Not authenticated", nil)
+	}
+
+	// 2. Parse the JSON input
+	var input ProjectInput
+	if err := json.NewDecoder(e.Request.Body).Decode(&input); err != nil {
+		return e.BadRequestError("Invalid request body", err)
+	}
+	if input.Name == "" {
+		return e.BadRequestError("Project name is required", nil)
+	}
+
+	// 3. Find the project by name
+	filter := "name = {:name}"
+	params := map[string]any{"name": input.Name}
+	project, err := e.App.FindFirstRecordByFilter("projects", filter, params)
+	if project == nil {
+		return e.BadRequestError("Project does not exist", nil)
+	}
+
+	// 4. Check if the user is the owner of the project
+	if project.Get("owner_id") != user.Id {
+		return e.ForbiddenError("Only the owner can delete the project", nil)
+	}
+
+	// 5. Delete all user-project memberships for this project
+	memberships, err := e.App.FindRecordsByFilter(
+		"users_projects",
+		"project = {:project}",
+		"",
+		1,
+		1000,
+		map[string]any{"project": project.Id},
+	)
+	if err == nil && memberships != nil {
+		for _, m := range memberships {
+			_ = e.App.Delete(m)
+		}
+	}
+
+	// 6. Delete the project record
+	if err := e.App.Delete(project); err != nil {
+		return e.InternalServerError("Failed to delete project", err)
+	}
+
+	// 7. Optionally: delete the Qdrant collection
+	qdrant_api.DeleteCollection(input.Name)
+
+	// 8. Respond with success
+	return e.JSON(http.StatusOK, map[string]any{
+		"message": "Project deleted successfully",
+		"project": project.PublicExport(),
+	})
+}
+
 type AddUserByEmailInput struct {
 	ProjectId string `json:"project_id"`
 	Email     string `json:"email"`

@@ -12,6 +12,10 @@ func RegisterFormRoutes(e *core.ServeEvent) {
 		return formfunctions.CreateProject(e)
 	}).Bind(apis.RequireAuth()) // Require authentication, remove if not needed
 
+	e.Router.POST("/api/forms/project/delete", func(e *core.RequestEvent) error {
+		return formfunctions.DeleteProject(e)
+	}).Bind(apis.RequireAuth()) // Require authentication, remove if not needed
+
 	e.Router.POST("/api/forms/project/addUser", func(e *core.RequestEvent) error {
 		return formfunctions.AddUserToProjectByEmail(e)
 	}).Bind(apis.RequireAuth()) // Require authentication, remove if not needed
