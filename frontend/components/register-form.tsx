@@ -3,6 +3,7 @@ import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { useRouter } from "next/navigation";
 
 
 const API_BASE_URL: string = process.env.NEXT_PUBLIC_API_BASE_URL as string;
@@ -12,13 +13,15 @@ export function RegisterForm({
   ...props
 }: React.ComponentProps<"form">) {
 
+  const router  = useRouter();
+
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
     const form = event.currentTarget;
     const formData = new FormData(form);
 
-    const obj = {email:formData.get("identity"), password:formData.get("password"), passwordConfirm:formData.get("passwordConfirm")};
+    const obj = {name:formData.get("name"), email:formData.get("identity"), password:formData.get("password"), passwordConfirm:formData.get("passwordConfirm")};
 
     try {
       const response = await fetch(`${API_BASE_URL}/collections/users/records`, {
@@ -28,6 +31,7 @@ export function RegisterForm({
       });
       if (!response.ok) throw new Error("Login failed");
       // handle login success here
+      router.push("/login");
       alert("Register successful");
     } catch (err) {
       alert((err as Error).message);
@@ -45,7 +49,7 @@ export function RegisterForm({
       <div className="grid gap-6">
         <div className="grid gap-3">
           <Label htmlFor="email">Name</Label>
-          <Input id="name" type="name" name = "name" placeholder=" " required />
+          <Input id="name" type="name" name = "name" placeholder="Johnny Depp" required />
         </div>
         <div className="grid gap-3">
           <Label htmlFor="email">Email</Label>
