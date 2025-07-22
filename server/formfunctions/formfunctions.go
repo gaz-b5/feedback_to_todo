@@ -2,9 +2,12 @@ package formfunctions
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
+	"strings"
 
 	"David/qdrant_api"
+
 	"github.com/pocketbase/pocketbase/core"
 )
 
@@ -237,7 +240,7 @@ func RemoveUserFromProject(e *core.RequestEvent) error {
 		return e.ForbiddenError("You are not an admin for this project", nil)
 	}
 
-	// 2. Find the user to add by email
+	// 2. Find the user to remove by email
 	userToRemove, err := e.App.FindAuthRecordByEmail("users", input.Email)
 	if err != nil || userToRemove == nil {
 		return e.BadRequestError("No user found with that email", err)
@@ -266,3 +269,79 @@ func RemoveUserFromProject(e *core.RequestEvent) error {
 	})
 
 }
+
+func GetProjects(e *core.RequestEvent) error {
+	// 1. Get the authenticated user (now e.Auth)
+	user := e.Auth
+	if user == nil {
+		return e.UnauthorizedError("Not authenticated", nil)
+	}
+
+	// 2. Find all projects where the user is a member
+	filter := "user_id = {:user_id}"
+	params := map[string]any{
+		"user_id": user.Id,
+	}
+	memberships, err := e.App.FindRecordsByFilter("users_projects", filter, "", 1000, 0, params)
+	if err != nil {
+		return e.InternalServerError("Failed to fetch projects", err)
+	}
+
+	// 3. Collect project IDs from memberships
+	projectIds := make([]string, len(memberships))
+	for i, m := range memberships {
+		projectIds[i] = m.GetString("project")
+	}
+
+	// 4. Fetch project details
+	if len(projectIds) == 0 {
+		return e.JSON(http.StatusOK, map[string]any{"projects": []any{}})
+	}
+
+	var filters []string
+	params = make(map[string]any)
+	for i, id := range projectIds {
+		key := fmt.Sprintf("id%d", i)
+		filters = append(filters, fmt.Sprintf("id = {:%s}", key)) // use equality check
+		params[key] = id
+	}
+
+	filter = strings.Join(filters, " || ")
+	projects, err := e.App.FindRecordsByFilter("projects", filter, "", 1000, 0, params)
+	if err != nil {
+		return e.InternalServerError("Failed to fetch projects", err)
+	}
+
+	// 5. Respond with the list of projects
+	return e.JSON(http.StatusOK, map[string]any{
+		"projects": projects,
+	})
+}
+
+// func GetTasks(e *core.RequestEvent) error {
+// 	// 1. Get the authenticated user (now e.Auth)
+// 	user := e.Auth
+// 	if user == nil {
+// 		return e.UnauthorizedError("Not authenticated", nil)
+// 	}
+
+// 	var input ProjectInput
+// 	if err := json.NewDecoder(e.Request.Body).Decode(&input); err != nil {
+// 		return e.BadRequestError("Invalid request body", err)
+// 	}
+// 	if input.Name == "" {
+// 		return e.BadRequestError("Project name is required", nil)
+// 	}
+
+// 	// get all the tasks for the project, if the user is a member of the project
+// 	filter := "project = {:project} && user_id = {:user_id}"
+// 	params := map[string]any{
+// 		"project": input.Name,
+// 		"user_id": user.Id,
+// 	}
+
+// 	// 5. Respond with the list of tasks
+// 	return e.JSON(http.StatusOK, map[string]any{
+// 		"tasks": tasks,
+// 	})
+// }

@@ -2,6 +2,7 @@ package routes
 
 import (
 	"David/formfunctions"
+
 	"github.com/pocketbase/pocketbase/apis"
 	"github.com/pocketbase/pocketbase/core"
 )
@@ -22,6 +23,10 @@ func RegisterFormRoutes(e *core.ServeEvent) {
 
 	e.Router.POST("/api/forms/project/removeUser", func(e *core.RequestEvent) error {
 		return formfunctions.RemoveUserFromProject(e)
+	}).Bind(apis.RequireAuth()) // Require authentication, remove if not needed
+
+	e.Router.GET("/api/forms/projects", func(e *core.RequestEvent) error {
+		return formfunctions.GetProjects(e)
 	}).Bind(apis.RequireAuth()) // Require authentication, remove if not needed
 
 	// Example: Register a GET route for fetching form data
