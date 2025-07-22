@@ -1,7 +1,6 @@
 'use server';
 
-import { NextResponse } from 'next/server';
-import { encrypt, SessionPayload } from '@/app/_lib/session';
+import { cookies } from 'next/headers';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL as string;
 
@@ -29,6 +28,17 @@ export async function handleLogin(formData: FormData) {
   if (!token) {
     return { error: "No token received" };
   }
+
+  const cookieStore = cookies();
+  (await cookieStore).set({
+    name: "session_token",
+    value: token,
+    httpOnly: true,
+    secure: true,
+    path: "/",
+    maxAge: 60 * 60 * 12,
+    sameSite: "lax",
+  });
 
   // Optionally return data for the client
   return { success: true };
