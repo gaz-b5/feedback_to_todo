@@ -328,18 +328,15 @@ func GetTasks(e *core.RequestEvent) error {
 	}
 
 	// 2. Parse the JSON input
-	var input ProjectIdInput
-	if err := json.NewDecoder(e.Request.Body).Decode(&input); err != nil {
-		return e.BadRequestError("Invalid request body", err)
-	}
-	if input.Id == "" {
+	projectId := e.Request.URL.Query().Get("projectId")
+	if projectId == "" {
 		return e.BadRequestError("Project Id is required", nil)
 	}
 
 	// get all the tasks for the project, if the user is a member of the project
 	filter := "project = {:project} && user_id = {:user_id}"
 	params := map[string]any{
-		"project": input.Id,
+		"project": projectId,
 		"user_id": user.Id,
 	}
 
@@ -349,7 +346,7 @@ func GetTasks(e *core.RequestEvent) error {
 	}
 
 	// 3. Find all tasks for the project
-	tasks, err := e.App.FindRecordsByFilter("tasks", "project = {:project}", "", 1000, 0, map[string]any{"project": input.Id})
+	tasks, err := e.App.FindRecordsByFilter("tasks", "project = {:project}", "", 1000, 0, map[string]any{"project": projectId})
 	if err != nil {
 		return e.InternalServerError("Failed to fetch tasks", err)
 	}
