@@ -15,6 +15,10 @@ type ProjectInput struct {
 	Name string `json:"name"`
 }
 
+type ProjectIdInput struct {
+	Id string `json:"project_id"`
+}
+
 func CreateProject(e *core.RequestEvent) error {
 	// 1. Get the authenticated user (now e.Auth)
 	user := e.Auth
@@ -86,18 +90,16 @@ func DeleteProject(e *core.RequestEvent) error {
 	}
 
 	// 2. Parse the JSON input
-	var input ProjectInput
+	var input ProjectIdInput
 	if err := json.NewDecoder(e.Request.Body).Decode(&input); err != nil {
 		return e.BadRequestError("Invalid request body", err)
 	}
-	if input.Name == "" {
-		return e.BadRequestError("Project name is required", nil)
+	if input.Id == "" {
+		return e.BadRequestError("Project Id is required", nil)
 	}
 
-	// 3. Find the project by name
-	filter := "name = {:name}"
-	params := map[string]any{"name": input.Name}
-	project, err := e.App.FindFirstRecordByFilter("projects", filter, params)
+	// 3. Find the project by Id
+	project, err := e.App.FindRecordById("projects", input.Id)
 	if project == nil {
 		return e.BadRequestError("Project does not exist", nil)
 	}
@@ -128,7 +130,7 @@ func DeleteProject(e *core.RequestEvent) error {
 	}
 
 	// 7. Optionally: delete the Qdrant collection
-	qdrant_api.DeleteCollection(input.Name)
+	qdrant_api.DeleteCollection(project.Get("name").(string))
 
 	// 8. Respond with success
 	return e.JSON(http.StatusOK, map[string]any{
@@ -318,30 +320,42 @@ func GetProjects(e *core.RequestEvent) error {
 	})
 }
 
-// func GetTasks(e *core.RequestEvent) error {
-// 	// 1. Get the authenticated user (now e.Auth)
-// 	user := e.Auth
-// 	if user == nil {
-// 		return e.UnauthorizedError("Not authenticated", nil)
-// 	}
+func GetTasks(e *core.RequestEvent) error {
+	// 1. Get the authenticated user (now e.Auth)
+	user := e.Auth
+	if user == nil {
+		return e.UnauthorizedError("Not authenticated", nil)
+	}
 
-// 	var input ProjectInput
-// 	if err := json.NewDecoder(e.Request.Body).Decode(&input); err != nil {
-// 		return e.BadRequestError("Invalid request body", err)
-// 	}
-// 	if input.Name == "" {
-// 		return e.BadRequestError("Project name is required", nil)
-// 	}
+	// 2. Parse the JSON input
+	var input ProjectIdInput
+	if err := json.NewDecoder(e.Request.Body).Decode(&input); err != nil {
+		return e.BadRequestError("Invalid request body", err)
+	}
+	if input.Id == "" {
+		return e.BadRequestError("Project Id is required", nil)
+	}
 
-// 	// get all the tasks for the project, if the user is a member of the project
-// 	filter := "project = {:project} && user_id = {:user_id}"
-// 	params := map[string]any{
-// 		"project": input.Name,
-// 		"user_id": user.Id,
-// 	}
+	// get all the tasks for the project, if the user is a member of the project
+	filter := "project = {:project} && user_id = {:user_id}"
+	params := map[string]any{
+		"project": input.Id,
+		"user_id": user.Id,
+	}
 
-// 	// 5. Respond with the list of tasks
-// 	return e.JSON(http.StatusOK, map[string]any{
-// 		"tasks": tasks,
-// 	})
-// }
+	memberRecord, _ := e.App.FindFirstRecordByFilter("users_projects", filter, params)
+	if memberRecord == nil {
+		return e.ForbiddenError("You are not a member for this project", nil)
+	}
+
+	// 3. Find all tasks for the project
+	tasks, err := e.App.FindRecordsByFilter("tasks", "project = {:project}", "", 1000, 0, map[string]any{"project": input.Id})
+	if err != nil {
+		return e.InternalServerError("Failed to fetch tasks", err)
+	}
+
+	// 4. Respond with the list of tasks
+	return e.JSON(http.StatusOK, map[string]any{
+		"tasks": tasks,
+	})
+}
