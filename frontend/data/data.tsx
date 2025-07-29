@@ -4,6 +4,7 @@ import {
   ArrowUp,
   CheckCircle,
   Circle,
+  CircleAlert,
   CircleOff,
   HelpCircle,
   Timer,
@@ -18,18 +19,18 @@ export const labels = [
     value: "feature",
     label: "Feature",
   },
-  {
-    value: "documentation",
-    label: "Documentation",
-  },
+  // {
+  //   value: "documentation",
+  //   label: "Documentation",
+  // },
 ]
 
 export const statuses = [
-  {
-    value: "backlog",
-    label: "Backlog",
-    icon: HelpCircle,
-  },
+  // {
+  //   value: "backlog",
+  //   label: "Backlog",
+  //   icon: HelpCircle,
+  // },
   {
     value: "todo",
     label: "Todo",
@@ -45,11 +46,11 @@ export const statuses = [
     label: "Done",
     icon: CheckCircle,
   },
-  {
-    value: "canceled",
-    label: "Canceled",
-    icon: CircleOff,
-  },
+  // {
+  //   value: "canceled",
+  //   label: "Canceled",
+  //   icon: CircleOff,
+  // },
 ]
 
 export const priorities = [
@@ -67,5 +68,10 @@ export const priorities = [
     label: "High",
     value: "high",
     icon: ArrowUp,
+  },
+  {
+    label: "Critical",
+    value: "critical",
+    icon: CircleAlert,
   },
 ]

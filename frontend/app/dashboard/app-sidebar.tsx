@@ -17,6 +17,7 @@ import {
   SidebarRail,
 } from "@/components/ui/sidebar"
 import { useEffect, useState } from "react";
+import Link from 'next/link'
 import { NextRequest } from 'next/server';
 
 type Project = {
@@ -74,7 +75,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               {loading && (
                 <SidebarMenuItem>
                   <SidebarMenuButton className="text-gray-600">
-                  Loading...
+                    Loading...
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               )}
@@ -82,7 +83,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               {!loading && (!projects || projects.length === 0) && (
                 <SidebarMenuItem>
                   <SidebarMenuButton className="text-gray-600">
-                  No projects yet... 😴
+                    No projects yet... 😴
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               )}
@@ -90,7 +91,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               {!loading && projects && projects.length > 0 && projects.map((item) => (
                 <SidebarMenuItem key={item.id}>
                   <SidebarMenuButton asChild isActive={item.isActive}>
-                    <a href="#">{item.title}</a>
+                    <Link href={`dashboard/${item.id}/tasks`}>{item.title}</Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}
