@@ -1,51 +1,18 @@
-import { AppSidebar } from "@/app/dashboard/app-sidebar"
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb"
-import { Separator } from "@/components/ui/separator"
-import {
-  SidebarInset,
-  SidebarProvider,
-  SidebarTrigger,
-} from "@/components/ui/sidebar"
-import TaskPage from "@/app/dashboard/tasklist_template/page"
-
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 
 
 export default function Page() {
   return (
-    <SidebarProvider>
-      <AppSidebar />
-      <SidebarInset>
-        <header className="flex h-16 shrink-0 items-center gap-2 border-b px-4">
-          <SidebarTrigger className="-ml-1" />
-          <Separator
-            orientation="vertical"
-            className="mr-2 data-[orientation=vertical]:h-4"
-          />
-          <Breadcrumb>
-            <BreadcrumbList>
-              <BreadcrumbItem className="hidden md:block">
-                <BreadcrumbLink href="#">
-                  Building Your Application
-                </BreadcrumbLink>
-              </BreadcrumbItem>
-              {/* <BreadcrumbSeparator className="hidden md:block" />
-              <BreadcrumbItem>
-                <BreadcrumbPage>Data Fetching</BreadcrumbPage>
-              </BreadcrumbItem> */}
-            </BreadcrumbList>
-          </Breadcrumb>
-        </header>
-        <div className="flex flex-1 flex-col gap-4 p-4">
-          <TaskPage />
-        </div>
-      </SidebarInset>
-    </SidebarProvider>
+    <>
+      <div className="w-full flex items-center justify-center h-full">
+        <Alert variant="default" className="w-1/4">
+          {/* <Terminal /> */}
+          <AlertTitle>Heads up!</AlertTitle>
+          <AlertDescription>
+            Choose a project to see task-list 🙏.
+          </AlertDescription>
+        </Alert>
+      </div>
+    </>
   )
 }

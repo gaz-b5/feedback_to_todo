@@ -14,12 +14,13 @@ export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
   const projectId = searchParams.get("projectId");
 
+
   if (!projectId) {
     return NextResponse.json({ error: "Missing projectId" }, { status: 400 });
   }
 
   // Call your backend securely with token in the Authorization header
-  const backendRes = await fetch(`${API_BASE_URL}/forms/tasks?projectId=${projectId}`, {
+  const backendRes = await fetch(`${API_BASE_URL}/forms/project/tasks?projectId=${projectId}`, {
     method: "GET",
     headers: {
       "Authorization": `Bearer ${token}`,

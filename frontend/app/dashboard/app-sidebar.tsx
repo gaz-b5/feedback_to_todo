@@ -91,7 +91,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               {!loading && projects && projects.length > 0 && projects.map((item) => (
                 <SidebarMenuItem key={item.id}>
                   <SidebarMenuButton asChild isActive={item.isActive}>
-                    <Link href={`dashboard/${item.id}/tasks`}>{item.title}</Link>
+                    <Link href={`/dashboard/${item.id}/tasks`}>{item.title}</Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}

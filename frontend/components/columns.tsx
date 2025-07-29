@@ -145,7 +145,7 @@ export const columns: ColumnDef<Task>[] = [
         <div className="flex gap-2">
           {/* {row.original.nature && <Badge variant="outline">{row.original.nature}</Badge>} */}
           <span className="max-w-[500px] truncate font-medium">
-            {row.original.occurence}
+            {row.original.occurrence}
           </span>
         </div>
       )

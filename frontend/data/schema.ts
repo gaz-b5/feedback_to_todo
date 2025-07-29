@@ -5,8 +5,8 @@ export const taskSchema = z.object({
   title: z.string(),
   status: z.string(),
   nature: z.string(),
-  priority: z.string(),
-  occurence: z
+  priority: z.coerce.string(),
+  occurrence: z
     .union([z.number(), z.string()])
     .optional()
     .transform((val) => {

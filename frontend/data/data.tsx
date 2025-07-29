@@ -52,18 +52,18 @@ export const statuses = [
   //   icon: CircleOff,
   // },
   {
-    value: "todo",
-    label: "Todo",
+    value: "Pending",
+    label: "Pending",
     icon: Circle,
   },
   {
-    value: "in progress",
+    value: "In progress",
     label: "In Progress",
     icon: Timer,
   },
   {
-    value: "done",
-    label: "Done",
+    value: "Completed",
+    label: "Completed",
     icon: CheckCircle,
   },
 ]
