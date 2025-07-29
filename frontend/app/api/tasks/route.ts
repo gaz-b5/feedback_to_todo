@@ -31,6 +31,8 @@ export async function GET(req: NextRequest) {
   }
 
   const data = await backendRes.json();
+  
+  const tasks = Array.isArray(data.tasks) ? data.tasks : [];
 
-  return NextResponse.json({ tasks: data});
+  return NextResponse.json(tasks);
 }

@@ -31,6 +31,26 @@ export const statuses = [
   //   label: "Backlog",
   //   icon: HelpCircle,
   // },
+  // {
+  //   value: "todo",
+  //   label: "Todo",
+  //   icon: Circle,
+  // },
+  // {
+  //   value: "in progress",
+  //   label: "In Progress",
+  //   icon: Timer,
+  // },
+  // {
+  //   value: "done",
+  //   label: "Done",
+  //   icon: CheckCircle,
+  // },
+  // {
+  //   value: "canceled",
+  //   label: "Canceled",
+  //   icon: CircleOff,
+  // },
   {
     value: "todo",
     label: "Todo",
@@ -46,32 +66,47 @@ export const statuses = [
     label: "Done",
     icon: CheckCircle,
   },
-  // {
-  //   value: "canceled",
-  //   label: "Canceled",
-  //   icon: CircleOff,
-  // },
 ]
 
 export const priorities = [
+  // {
+  //   label: "Low",
+  //   value: "low",
+  //   icon: ArrowDown,
+  // },
+  // {
+  //   label: "Medium",
+  //   value: "medium",
+  //   icon: ArrowRight,
+  // },
+  // {
+  //   label: "High",
+  //   value: "high",
+  //   icon: ArrowUp,
+  // },
+  // {
+  //   label: "Critical",
+  //   value: "critical",
+  //   icon: CircleAlert,
+  // },
   {
     label: "Low",
-    value: "low",
+    value: "0.5",
     icon: ArrowDown,
   },
   {
     label: "Medium",
-    value: "medium",
+    value: "0.6",
     icon: ArrowRight,
   },
   {
     label: "High",
-    value: "high",
+    value: "0.7",
     icon: ArrowUp,
   },
   {
     label: "Critical",
-    value: "critical",
+    value: "0.8",
     icon: CircleAlert,
   },
 ]

@@ -5,7 +5,7 @@ import { ColumnDef } from "@tanstack/react-table"
 import { Badge } from "@/components/ui/badge"
 import { Checkbox } from "@/components/ui/checkbox"
 
-import { labels, priorities, statuses } from "../data/data"
+import { priorities, statuses } from "../data/data"
 import { Task } from "../data/schema"
 import { DataTableColumnHeader } from "./data-table-column-header"
 import { DataTableRowActions } from "./data-table-row-actions"
@@ -45,22 +45,38 @@ export const columns: ColumnDef<Task>[] = [
     enableHiding: false,
   },
   {
+    accessorKey: "nature",
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Nature" />
+    ),
+    cell: ({ row }) => {
+
+      return (
+        <div className="flex gap-2">
+          {row.original.nature && <Badge variant="outline">{row.original.nature}</Badge>}
+        </div>
+      )
+    },
+    enableSorting: false,
+  },
+  {
     accessorKey: "title",
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Title" />
     ),
     cell: ({ row }) => {
-      const label = labels.find((label) => label.value === row.original.label)
+      // const label = labels.find((label) => label.value === row.original.nature)
 
       return (
         <div className="flex gap-2">
-          {label && <Badge variant="outline">{label.label}</Badge>}
+          {/* {row.original.nature && <Badge variant="outline">{row.original.nature}</Badge>} */}
           <span className="max-w-[500px] truncate font-medium">
             {row.getValue("title")}
           </span>
         </div>
       )
     },
+    enableSorting: false,
   },
   {
     accessorKey: "status",
@@ -88,6 +104,7 @@ export const columns: ColumnDef<Task>[] = [
     filterFn: (row, id, value) => {
       return value.includes(row.getValue(id))
     },
+    enableSorting: false,
   },
   {
     accessorKey: "priority",
@@ -115,6 +132,25 @@ export const columns: ColumnDef<Task>[] = [
     filterFn: (row, id, value) => {
       return value.includes(row.getValue(id))
     },
+  },
+  {
+    accessorKey: "occurence",
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Occurence" />
+    ),
+    cell: ({ row }) => {
+      // const label = labels.find((label) => label.value === row.original.nature)
+
+      return (
+        <div className="flex gap-2">
+          {/* {row.original.nature && <Badge variant="outline">{row.original.nature}</Badge>} */}
+          <span className="max-w-[500px] truncate font-medium">
+            {row.original.occurence}
+          </span>
+        </div>
+      )
+    },
+    enableSorting: true,
   },
   {
     id: "actions",

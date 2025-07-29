@@ -13,7 +13,7 @@ import {
   SidebarProvider,
   SidebarTrigger,
 } from "@/components/ui/sidebar"
-import TaskPage from "@/app/dashboard/tasklist/page"
+import TaskPage from "@/app/dashboard/tasklist_template/page"
 
 
 
@@ -28,19 +28,19 @@ export default function Page() {
             orientation="vertical"
             className="mr-2 data-[orientation=vertical]:h-4"
           />
-          {/* <Breadcrumb>
+          <Breadcrumb>
             <BreadcrumbList>
               <BreadcrumbItem className="hidden md:block">
                 <BreadcrumbLink href="#">
                   Building Your Application
                 </BreadcrumbLink>
               </BreadcrumbItem>
-              <BreadcrumbSeparator className="hidden md:block" />
+              {/* <BreadcrumbSeparator className="hidden md:block" />
               <BreadcrumbItem>
                 <BreadcrumbPage>Data Fetching</BreadcrumbPage>
-              </BreadcrumbItem>
+              </BreadcrumbItem> */}
             </BreadcrumbList>
-          </Breadcrumb> */}
+          </Breadcrumb>
         </header>
         <div className="flex flex-1 flex-col gap-4 p-4">
           <TaskPage />
