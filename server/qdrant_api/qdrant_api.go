@@ -2,13 +2,19 @@ package qdrant_api
 
 import (
 	"context"
+
+	// "crypto/rand"
+	// "encoding/binary"
 	"fmt"
+
 	// "log"
 	// "strconv"
 	// "strings"
 	// "time"
 
+	"github.com/google/uuid"
 	"github.com/qdrant/go-client/qdrant"
+
 	// "github.com/tmc/langchaingo/llms"
 	// "github.com/tmc/langchaingo/llms/openai"
 	dp "David/data_point"
@@ -19,15 +25,12 @@ var CLIENT *qdrant.Client
 
 func UpdateAndCreateDataPoint(dataPoint dp.DataPoint, collectionId string) {
 
-	countResponse, err := CLIENT.Count(context.Background(), &qdrant.CountPoints{
-		CollectionName: collectionId,
-	})
-	if err != nil {
-		panic(err)
-	}
+	ctx := context.Background()
+
+	uniqueID := uuid.New().String()
 
 	point := &qdrant.PointStruct{
-		Id: qdrant.NewIDNum(uint64(countResponse) + 1),
+		Id: qdrant.NewIDUUID(uniqueID),
 		Vectors: &qdrant.Vectors{
 			VectorsOptions: &qdrant.Vectors_Vector{
 				Vector: &qdrant.Vector{
@@ -40,8 +43,7 @@ func UpdateAndCreateDataPoint(dataPoint dp.DataPoint, collectionId string) {
 		}),
 	}
 
-	ctx := context.Background()
-	_, err = CLIENT.Upsert(ctx, &qdrant.UpsertPoints{
+	_, err := CLIENT.Upsert(ctx, &qdrant.UpsertPoints{
 		CollectionName: collectionId,
 		Points:         []*qdrant.PointStruct{point},
 	})

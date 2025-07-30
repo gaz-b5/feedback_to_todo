@@ -45,7 +45,8 @@ export default async function TaskPage({ params }: PageProps) {
     const hdrs = await headers();
     const cookie = hdrs.get("cookie");
 
-    const res = await fetch(`${baseUrl}/api/tasks?projectId=${params.projectId}`, {
+    const { projectId } = await params
+    const res = await fetch(`${baseUrl}/api/tasks?projectId=${projectId}`, {
         method: "GET",
         headers: {
             cookie: cookie || "",      // <-- Forward cookies
