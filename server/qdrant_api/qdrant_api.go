@@ -23,7 +23,7 @@ import (
 
 var CLIENT *qdrant.Client
 
-func UpdateAndCreateDataPoint(dataPoint dp.DataPoint, collectionId string) {
+func UpdateAndCreateDataPoint(dataPoint dp.DataPoint, collectionId string) string {
 
 	ctx := context.Background()
 
@@ -50,6 +50,8 @@ func UpdateAndCreateDataPoint(dataPoint dp.DataPoint, collectionId string) {
 	if err != nil {
 		panic(err)
 	}
+
+	return uniqueID
 }
 
 func CreateQdrantPayload(data dp.DataPoint) map[string]any {
