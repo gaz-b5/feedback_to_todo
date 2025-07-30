@@ -23,6 +23,7 @@ export const metadata: Metadata = {
     description: "A task and issue tracker build using Tanstack Table.",
 }
 
+// dummy data fetching function
 // async function getTasks({ params }: PageProps) {
 //     const { projectId } = params;
 
