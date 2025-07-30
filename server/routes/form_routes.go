@@ -41,6 +41,10 @@ func RegisterFormRoutes(e *core.ServeEvent) {
 		return formfunctions.SetStatus(e)
 	}).Bind(apis.RequireAuth()) // Require authentication, remove if not needed
 
+	e.Router.POST("/api/forms/project/task/delete", func(e *core.RequestEvent) error {
+		return formfunctions.DeleteTask(e)
+	}).Bind(apis.RequireAuth()) // Require authentication, remove if not needed
+
 	e.Router.POST("/api/forms/project/task/setprioritybulk", func(e *core.RequestEvent) error {
 		return formfunctions.SetPriorityBulk(e)
 	}).Bind(apis.RequireAuth()) // Require authentication, remove if not needed
@@ -49,8 +53,8 @@ func RegisterFormRoutes(e *core.ServeEvent) {
 		return formfunctions.SetStatusBulk(e)
 	}).Bind(apis.RequireAuth()) // Require authentication, remove if not needed
 
-	e.Router.POST("/api/forms/project/task/delete", func(e *core.RequestEvent) error {
-		return formfunctions.DeleteTask(e)
+	e.Router.POST("/api/forms/project/task/deletebulk", func(e *core.RequestEvent) error {
+		return formfunctions.DeleteTasksBulk(e)
 	}).Bind(apis.RequireAuth()) // Require authentication, remove if not needed
 
 	// Example: Register a GET route for fetching form data
