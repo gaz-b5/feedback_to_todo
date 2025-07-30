@@ -119,3 +119,34 @@ func ReturnClosestTaskID(collectionName string, limit uint64, embedding []float3
 	numResults := len(results)
 	return taskId, numResults
 }
+
+func DeleteTaskQdrant(collectionName string, qdrantDBId string) error {
+	_, err := CLIENT.Delete(context.Background(), &qdrant.DeletePoints{
+		CollectionName: collectionName,
+		Points: qdrant.NewPointsSelector(
+			qdrant.NewIDUUID(qdrantDBId), // Replace with your point ID (int64)
+		),
+	})
+	if err != nil {
+		return err
+	}
+	return nil
+
+}
+
+func DeleteTasksQdrantBulk(collectionName string, qdrantDBIds []string) error {
+	// Create a slice of PointIDs
+	var pointIDs []*qdrant.PointId
+	for _, id := range qdrantDBIds {
+		pointIDs = append(pointIDs, qdrant.NewIDUUID(id))
+	}
+
+	_, err := CLIENT.Delete(context.Background(), &qdrant.DeletePoints{
+		CollectionName: collectionName,
+		Points:         qdrant.NewPointsSelector(pointIDs...),
+	})
+	if err != nil {
+		return err
+	}
+	return nil
+}

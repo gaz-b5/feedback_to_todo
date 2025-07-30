@@ -485,6 +485,37 @@ func DeleteTask(e *core.RequestEvent) error {
 		return e.ForbiddenError("You are not a member for this project", nil)
 	}
 
+	projectId := task.GetString("project")
+
+	// 1. Fetch the project record by projectId
+	project, err := e.App.FindRecordById("projects", projectId)
+	if err != nil {
+		return e.InternalServerError("Failed to find project", err)
+	}
+	if project == nil {
+		return e.BadRequestError("Project does not exist for the task", nil)
+	}
+
+	// 2. Extract project name from the project record
+	projectName := project.GetString("name")
+	if projectName == "" {
+		return e.InternalServerError("Project name is empty", nil)
+	}
+
+	// Then use projectName as Qdrant collection name
+	collectionName := projectName
+
+	qdrantDBId, ok := task.Get("qdrantDBId").(string)
+	if !ok || qdrantDBId == "" {
+		return e.InternalServerError("Task missing uniqueDBId for Qdrant", nil)
+	}
+
+	// Create point ID for Qdrant deletion (assuming UUID strings used)
+	err = qdrant_api.DeleteTaskQdrant(collectionName, qdrantDBId)
+	if err != nil {
+		return e.InternalServerError("Failed to delete task from Qdrant", err)
+	}
+
 	// 5. Delete the task
 	if err := e.App.Delete(task); err != nil {
 		return e.InternalServerError("Failed to delete task", err)
@@ -606,5 +637,104 @@ func SetStatusBulk(e *core.RequestEvent) error {
 
 	return e.JSON(http.StatusOK, map[string]any{
 		"message": "Tasks status updated successfully",
+	})
+}
+
+func DeleteTasksBulk(e *core.RequestEvent) error {
+	user := e.Auth
+	if user == nil {
+		return e.UnauthorizedError("Not authenticated", nil)
+	}
+
+	// Parse JSON input expecting an array of task IDs
+	var input struct {
+		TaskIds []string `json:"task_ids"`
+	}
+	if err := json.NewDecoder(e.Request.Body).Decode(&input); err != nil {
+		return e.BadRequestError("Invalid request body", err)
+	}
+	if len(input.TaskIds) == 0 {
+		return e.BadRequestError("No task IDs provided", nil)
+	}
+
+	// Find the first task to get the project and collection name
+	firstTask, err := e.App.FindRecordById("tasks", input.TaskIds[0])
+	if err != nil {
+		return e.InternalServerError("Failed to find first task", err)
+	}
+	if firstTask == nil {
+		return e.BadRequestError("First task does not exist", nil)
+	}
+
+	// Fetch project record once from first task's project
+	projectId := firstTask.GetString("project")
+	project, err := e.App.FindRecordById("projects", projectId)
+	if err != nil {
+		return e.InternalServerError("Failed to find project", err)
+	}
+	if project == nil {
+		return e.BadRequestError("Project does not exist for the first task", nil)
+	}
+
+	collectionName := project.GetString("name")
+	if collectionName == "" {
+		return e.InternalServerError("Project name is empty", nil)
+	}
+
+	var qdrantIDs []string
+	var tasksToDelete []*core.Record
+
+	for _, taskId := range input.TaskIds {
+		task, err := e.App.FindRecordById("tasks", taskId)
+		if err != nil {
+			return e.InternalServerError("Failed to find task", err)
+		}
+		if task == nil {
+			return e.BadRequestError(fmt.Sprintf("Task %s does not exist", taskId), nil)
+		}
+
+		// Check project consistency
+		if task.GetString("project") != projectId {
+			return e.BadRequestError(fmt.Sprintf("Task %s does not belong to the same project", taskId), nil)
+		}
+
+		// Check membership
+		filter := "project = {:project} && user_id = {:user_id}"
+		params := map[string]any{
+			"project": projectId,
+			"user_id": user.Id,
+		}
+		memberRecord, err := e.App.FindFirstRecordByFilter("users_projects", filter, params)
+		if err != nil {
+			return e.InternalServerError("Failed to verify project membership", err)
+		}
+		if memberRecord == nil {
+			return e.ForbiddenError(fmt.Sprintf("You are not a member of the project for task %s", taskId), nil)
+		}
+
+		qdrantDBId, ok := task.Get("qdrantDBId").(string)
+		if !ok || qdrantDBId == "" {
+			return e.InternalServerError(fmt.Sprintf("Task %s missing uniqueDBId for Qdrant", taskId), nil)
+		}
+
+		qdrantIDs = append(qdrantIDs, qdrantDBId)
+		tasksToDelete = append(tasksToDelete, task)
+	}
+
+	// Bulk delete from Qdrant using single collection name
+	err = qdrant_api.DeleteTasksQdrantBulk(collectionName, qdrantIDs)
+	if err != nil {
+		return e.InternalServerError("Failed to delete tasks from Qdrant", err)
+	}
+
+	// Delete all app tasks
+	for _, task := range tasksToDelete {
+		if err := e.App.Delete(task); err != nil {
+			return e.InternalServerError("Failed to delete task", err)
+		}
+	}
+
+	return e.JSON(http.StatusOK, map[string]any{
+		"message": fmt.Sprintf("%d tasks deleted successfully", len(tasksToDelete)),
 	})
 }
