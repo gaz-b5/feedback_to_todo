@@ -450,3 +450,161 @@ func SetStatus(e *core.RequestEvent) error {
 		"message": "Task status updated successfully",
 	})
 }
+
+func DeleteTask(e *core.RequestEvent) error {
+	user := e.Auth
+	if user == nil {
+		return e.UnauthorizedError("Not authenticated", nil)
+	}
+
+	// 2. Parse the JSON input
+	var input struct {
+		TaskId string `json:"task_id"`
+	}
+	if err := json.NewDecoder(e.Request.Body).Decode(&input); err != nil {
+		return e.BadRequestError("Invalid request body", err)
+	}
+	if input.TaskId == "" {
+		return e.BadRequestError("Invalid task ID", nil)
+	}
+
+	// 3. Find the task by ID
+	task, _ := e.App.FindRecordById("tasks", input.TaskId)
+	if task == nil {
+		return e.BadRequestError("Task does not exist", nil)
+	}
+
+	// 4. Check if the user is a member of the project
+	filter := "project = {:project} && user_id = {:user_id}"
+	params := map[string]any{
+		"project": task.GetString("project"),
+		"user_id": user.Id,
+	}
+	memberRecord, _ := e.App.FindFirstRecordByFilter("users_projects", filter, params)
+	if memberRecord == nil {
+		return e.ForbiddenError("You are not a member for this project", nil)
+	}
+
+	// 5. Delete the task
+	if err := e.App.Delete(task); err != nil {
+		return e.InternalServerError("Failed to delete task", err)
+	}
+
+	return e.JSON(http.StatusOK, map[string]any{
+		"message": "Task deleted successfully",
+	})
+
+}
+
+func SetPriorityBulk(e *core.RequestEvent) error {
+	user := e.Auth
+	if user == nil {
+		return e.UnauthorizedError("Not authenticated", nil)
+	}
+
+	var input struct {
+		Tasks []struct {
+			TaskId string `json:"task_id"`
+		} `json:"tasks"`
+		Priority int `json:"priority"`
+	}
+
+	if err := json.NewDecoder(e.Request.Body).Decode(&input); err != nil {
+		return e.BadRequestError("Invalid request body", err)
+	}
+
+	if input.Priority < 0 || input.Priority > 5 {
+		return e.BadRequestError("Priority out of range", nil)
+	}
+
+	if len(input.Tasks) == 0 {
+		return e.BadRequestError("No tasks provided", nil)
+	}
+
+	for _, taskInfo := range input.Tasks {
+		if taskInfo.TaskId == "" {
+			return e.BadRequestError("Invalid task ID", nil)
+		}
+
+		task, _ := e.App.FindRecordById("tasks", taskInfo.TaskId)
+		if task == nil {
+			return e.BadRequestError("Task does not exist: "+taskInfo.TaskId, nil)
+		}
+
+		// Check membership
+		filter := "project = {:project} && user_id = {:user_id}"
+		params := map[string]any{
+			"project": task.GetString("project"),
+			"user_id": user.Id,
+		}
+		memberRecord, _ := e.App.FindFirstRecordByFilter("users_projects", filter, params)
+		if memberRecord == nil {
+			return e.ForbiddenError("You are not member of the project: "+task.GetString("project"), nil)
+		}
+
+		task.Set("priority", input.Priority)
+		if err := e.App.Save(task); err != nil {
+			return e.InternalServerError("Failed to update priority for task "+taskInfo.TaskId, err)
+		}
+	}
+
+	return e.JSON(http.StatusOK, map[string]any{
+		"message": "Tasks priority updated successfully",
+	})
+}
+
+func SetStatusBulk(e *core.RequestEvent) error {
+	user := e.Auth
+	if user == nil {
+		return e.UnauthorizedError("Not authenticated", nil)
+	}
+
+	var input struct {
+		Tasks []struct {
+			TaskId string `json:"task_id"`
+		} `json:"tasks"`
+		Status string `json:"status"`
+	}
+
+	if err := json.NewDecoder(e.Request.Body).Decode(&input); err != nil {
+		return e.BadRequestError("Invalid request body", err)
+	}
+
+	if input.Status == "" {
+		return e.BadRequestError("Status is required", nil)
+	}
+
+	if len(input.Tasks) == 0 {
+		return e.BadRequestError("No tasks provided", nil)
+	}
+
+	for _, taskInfo := range input.Tasks {
+		if taskInfo.TaskId == "" {
+			return e.BadRequestError("Invalid task ID", nil)
+		}
+
+		task, _ := e.App.FindRecordById("tasks", taskInfo.TaskId)
+		if task == nil {
+			return e.BadRequestError("Task does not exist: "+taskInfo.TaskId, nil)
+		}
+
+		filter := "project = {:project} && user_id = {:user_id}"
+		params := map[string]any{
+			"project": task.GetString("project"),
+			"user_id": user.Id,
+		}
+		memberRecord, _ := e.App.FindFirstRecordByFilter("users_projects", filter, params)
+		if memberRecord == nil {
+			return e.ForbiddenError("You are not member of the project: "+task.GetString("project"), nil)
+		}
+
+		task.Set("status", input.Status)
+		if err := e.App.Save(task); err != nil {
+			return e.InternalServerError("Failed to update status for task "+taskInfo.TaskId, err)
+		}
+	}
+
+	return e.JSON(http.StatusOK, map[string]any{
+		"message": "Tasks status updated successfully",
+	})
+}
