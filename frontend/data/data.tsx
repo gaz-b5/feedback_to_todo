@@ -91,22 +91,22 @@ export const priorities = [
   // },
   {
     label: "Low",
-    value: "0.5",
+    value: "1",
     icon: ArrowDown,
   },
   {
     label: "Medium",
-    value: "0.6",
+    value: "2",
     icon: ArrowRight,
   },
   {
     label: "High",
-    value: "0.7",
+    value: "3",
     icon: ArrowUp,
   },
   {
     label: "Critical",
-    value: "0.8",
+    value: "4",
     icon: CircleAlert,
   },
 ]

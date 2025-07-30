@@ -26,6 +26,10 @@ type Project = {
   isActive: boolean;
 };
 
+// type AppSidebarProps = React.ComponentProps<typeof Sidebar> & {
+//   selectedProject: Project | null;                    // your custom prop
+//   setSelectedProject: (project: Project | null) => void;   // your custom setter
+// };
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 
@@ -56,6 +60,17 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 
     fetchProjects();
   }, [])
+
+  function handleProjectClick(clickedId: string) {
+    setProjects((prev) =>
+      prev
+        ? prev.map((project) => ({
+          ...project,
+          isActive: project.id === clickedId,
+        }))
+        : null
+    );
+  }
 
 
   return (
@@ -90,7 +105,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 
               {!loading && projects && projects.length > 0 && projects.map((item) => (
                 <SidebarMenuItem key={item.id}>
-                  <SidebarMenuButton asChild isActive={item.isActive}>
+                  <SidebarMenuButton asChild isActive={item.isActive} onClick={() => handleProjectClick(item.id)}>
                     <Link href={`/dashboard/${item.id}/tasks`}>{item.title}</Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>

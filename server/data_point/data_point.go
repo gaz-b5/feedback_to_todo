@@ -7,7 +7,6 @@ import (
 	// "strconv"
 	// "strings"
 	"time"
-
 	// "github.com/qdrant/go-client/qdrant"
 )
 
@@ -23,15 +22,13 @@ type DataPoint struct {
 	Content   string
 	IsBug     bool
 	RepCount  int
-	Priority  float32
+	Priority  int
 	Timestamp time.Time
 	Status    Status
 	Embedding []float32
-	TaskID	  string
+	TaskID    string
 }
-
 
 func (s Status) String() string {
 	return [...]string{"Pending", "In Progress", "Completed"}[s]
 }
-

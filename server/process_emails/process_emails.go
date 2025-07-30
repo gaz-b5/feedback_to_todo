@@ -66,7 +66,7 @@ func ProcessEmailContent(e *core.RequestEvent) error {
 			Content:   taskQuery[0],
 			IsBug:     isBug,
 			RepCount:  1,
-			Priority:  0.5,
+			Priority:  1,
 			Timestamp: time.Now(),
 			Status:    data_point.Pending,
 		}

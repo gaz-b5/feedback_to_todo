@@ -22,6 +22,8 @@ interface LayoutProps {
 }
 
 export default function Layout({ children }: LayoutProps) {
+    // const [selectedProject, setSelectedProject] = React.useState<string | null>(null);
+
     return (
         <SidebarProvider>
             <AppSidebar />
