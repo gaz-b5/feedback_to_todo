@@ -23,6 +23,16 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { useRouter } from "next/navigation"
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
+import { Separator } from "./ui/separator"
 
 const baseUrl = process.env.NEXT_S_PUBLIC_BASE_URL || "http://localhost:3000"
 
@@ -47,9 +57,9 @@ export function DataTableToolbar<TData>({
 
     // Extract values
     const description = (form.elements.namedItem("description-1") as HTMLTextAreaElement).value.trim()
-    const nature = (form.elements.namedItem("nature") as RadioNodeList | null)?.value ?? labels[0]?.value
-    const priority = (form.elements.namedItem("priority") as RadioNodeList | null)?.value ?? priorities[0]?.value
-    const status = (form.elements.namedItem("status") as RadioNodeList | null)?.value ?? statuses[0]?.value
+    const nature = (form.elements.namedItem("nature") as HTMLSelectElement | null)?.value ?? labels[0]?.value;
+    const priority = (form.elements.namedItem("priority") as HTMLSelectElement | null)?.value ?? priorities[0]?.value;
+    const status = (form.elements.namedItem("status") as HTMLSelectElement | null)?.value ?? statuses[0]?.value;
     const { projectId } = await params
     const project_id = projectId
 
@@ -154,12 +164,14 @@ export function DataTableToolbar<TData>({
               <DialogDescription>
                 Add a task, which will be added to the tasklist unedited.
               </DialogDescription>
-
             </DialogHeader>
+
+            <Separator className="my-4" />
+
             <form onSubmit={handleSubmit}>
               <div className="grid gap-4">
                 {/* Task description textarea */}
-                <div className="grid gap-3 ">
+                <div className="grid gap-4 ">
                   <Label htmlFor="description-1">Task Description</Label>
                   <Textarea
                     id="description-1"
@@ -168,63 +180,58 @@ export function DataTableToolbar<TData>({
                   />
                 </div>
 
-                {/* Container for the three radio groups side by side */}
-                <div className="grid grid-cols-3 gap-8">
-                  {/* Labels RadioGroup */}
-                  <div className="grid gap-3 place-items-start grid-flow-col grid-rows-5">
-                    <Label className="row-span-1">Nature</Label>
-                    <RadioGroup
-                      aria-label="Nature"
-                      name="nature"
-                      defaultValue={labels[0]?.value}
-                      className="flex flex-col space-y-2 row-span-4"
-                    >
-                      {labels.map((label) => (
-                        <div key={label.value} className="flex items-center space-x-2">
-                          <RadioGroupItem value={label.value} id={`nature-${label.value}`} />
-                          <Label htmlFor={`nature-${label.value}`}>{label.label}</Label>
-                        </div>
-                      ))}
-                    </RadioGroup>
+                <div className="grid grid-cols-3 gap-4">
+                  <div className="flex flex-col gap-4">
+                    <Label>Nature</Label>
+                    <Select name="nature">
+                      <SelectTrigger className="w-[180px]">
+                        <SelectValue placeholder="Select nature" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectGroup>
+                          {labels.map((label) => (
+                            <SelectItem key={label.value} value={label.value}>{label.label}</SelectItem>
+                          ))}
+                        </SelectGroup>
+                      </SelectContent>
+                    </Select>
                   </div>
 
-                  {/* Priorities RadioGroup */}
-                  <div className="grid gap-1 place-items-start grid-flow-col grid-rows-5">
-                    <Label className="row-span-1">Priority</Label>
-                    <RadioGroup
-                      aria-label="Priority"
-                      name="priority"
-                      defaultValue={priorities[0]?.value}
-                      className="flex flex-col space-y-2 row-span-4"
-                    >
-                      {priorities.map((priority) => (
-                        <div key={priority.value} className="flex items-center space-x-2">
-                          <RadioGroupItem value={priority.value} id={`priority-${priority.value}`} />
-                          <Label htmlFor={`priority-${priority.value}`}>{priority.label}</Label>
-                        </div>
-                      ))}
-                    </RadioGroup>
+                  <div className="flex flex-col gap-4">
+                    <Label>Status</Label>
+                    <Select name="status">
+                      <SelectTrigger className="w-[180px]">
+                        <SelectValue placeholder="Select status" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectGroup>
+                          {statuses.map((status) => (
+                            <SelectItem key={status.value} value={status.value}>{status.label}</SelectItem>
+                          ))}
+                        </SelectGroup>
+                      </SelectContent>
+                    </Select>
                   </div>
 
-                  {/* Statuses RadioGroup */}
-                  <div className="grid grid-rows-5 gap-1 place-items-start grid-flow-col">
-                    <Label className="row-span-1">Status</Label>
-                    <RadioGroup
-                      aria-label="Status"
-                      name="status"
-                      defaultValue={statuses[0]?.value}
-                      className="flex flex-col space-y-2 row-span-4"
-                    >
-                      {statuses.map((status) => (
-                        <div key={status.value} className="flex items-center space-x-2">
-                          <RadioGroupItem value={status.value} id={`status-${status.value}`} />
-                          <Label htmlFor={`status-${status.value}`}>{status.label}</Label>
-                        </div>
-                      ))}
-                    </RadioGroup>
+                  <div className="flex flex-col gap-4">
+                    <Label>Priority</Label>
+                    <Select name="priority">
+                      <SelectTrigger className="w-[180px]">
+                        <SelectValue placeholder="Select priority" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectGroup>
+                          {priorities.map((priority) => (
+                            <SelectItem key={priority.value} value={priority.value}>{priority.label}</SelectItem>
+                          ))}
+                        </SelectGroup>
+                      </SelectContent>
+                    </Select>
                   </div>
                 </div>
               </div>
+
+              <Separator className="my-8" />
 
               <DialogFooter>
                 <DialogClose asChild>
@@ -236,7 +243,6 @@ export function DataTableToolbar<TData>({
               </DialogFooter>
             </form>
           </DialogContent>
-          {/* </form> */}
         </Dialog>
 
       </div>
