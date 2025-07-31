@@ -18,8 +18,11 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 
-import { labels } from "../data/data"
+import { labels, statuses, priorities } from "../data/data"
 import { taskSchema } from "../data/schema"
+import { useRouter } from "next/navigation";
+
+const baseUrl = process.env.NEXT_S_PUBLIC_BASE_URL || "http://localhost:3000";
 
 interface DataTableRowActionsProps<TData> {
   row: Row<TData>
@@ -28,7 +31,34 @@ interface DataTableRowActionsProps<TData> {
 export function DataTableRowActions<TData>({
   row,
 }: DataTableRowActionsProps<TData>) {
+  const router = useRouter();
   const task = taskSchema.parse(row.original)
+
+  // Generic update function, calls router.refresh() after success
+  async function updateTask(fields: Partial<{ status: string; priority: string; nature: string }>) {
+    try {
+      const res = await fetch(`${baseUrl}/api/tasks/update`, {
+        method: "PATCH",
+        credentials: "include", // Sends cookies securely (including httpOnly)
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          task_id: task.id,
+          ...fields,
+        }),
+      });
+
+      if (!res.ok) {
+        throw new Error("Update failed");
+      }
+
+      router.refresh(); // Forces table/page to reload new data
+    } catch (err) {
+      alert("Failed to update task");
+      console.error(err);
+    }
+  }
 
   return (
     <DropdownMenu>
@@ -43,17 +73,47 @@ export function DataTableRowActions<TData>({
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-[160px]">
-        <DropdownMenuItem>Edit</DropdownMenuItem>
+        {/* <DropdownMenuItem>Edit</DropdownMenuItem>
         <DropdownMenuItem>Make a copy</DropdownMenuItem>
-        <DropdownMenuItem>Favorite</DropdownMenuItem>
-        <DropdownMenuSeparator />
-        <DropdownMenuSub>
-          <DropdownMenuSubTrigger>Labels</DropdownMenuSubTrigger>
+        <DropdownMenuItem>Favorite</DropdownMenuItem> */}
+        {/* <DropdownMenuSeparator /> */}
+        {/* <DropdownMenuSub>
+          <DropdownMenuSubTrigger>Nature</DropdownMenuSubTrigger>
           <DropdownMenuSubContent>
             <DropdownMenuRadioGroup value={task.nature}>
               {labels.map((label) => (
                 <DropdownMenuRadioItem key={label.value} value={label.value}>
                   {label.label}
+                </DropdownMenuRadioItem>
+              ))}
+            </DropdownMenuRadioGroup>
+          </DropdownMenuSubContent>
+        </DropdownMenuSub> */}
+        <DropdownMenuSub>
+          <DropdownMenuSubTrigger>Status</DropdownMenuSubTrigger>
+          <DropdownMenuSubContent>
+            <DropdownMenuRadioGroup
+              value={task.status}
+              onValueChange={value => updateTask({ status: value })}
+            >
+              {statuses.map((status) => (
+                <DropdownMenuRadioItem key={status.value} value={status.value}>
+                  {status.label}
+                </DropdownMenuRadioItem>
+              ))}
+            </DropdownMenuRadioGroup>
+          </DropdownMenuSubContent>
+        </DropdownMenuSub>
+        <DropdownMenuSub>
+          <DropdownMenuSubTrigger>Priority</DropdownMenuSubTrigger>
+          <DropdownMenuSubContent>
+            <DropdownMenuRadioGroup
+              value={task.priority}
+              onValueChange={value => updateTask({ priority: value })}
+            >
+              {priorities.map((priority) => (
+                <DropdownMenuRadioItem key={priority.value} value={priority.value}>
+                  {priority.label}
                 </DropdownMenuRadioItem>
               ))}
             </DropdownMenuRadioGroup>

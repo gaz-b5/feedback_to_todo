@@ -738,3 +738,136 @@ func DeleteTasksBulk(e *core.RequestEvent) error {
 		"message": fmt.Sprintf("%d tasks deleted successfully", len(tasksToDelete)),
 	})
 }
+
+func UpdateTask(e *core.RequestEvent) error {
+	// 1. Get the authenticated user
+	user := e.Auth
+	if user == nil {
+		return e.UnauthorizedError("Not authenticated", nil)
+	}
+
+	// 2. Parse the JSON input with pointer fields for optional detection
+	var input struct {
+		TaskId   string  `json:"task_id"`
+		Status   *string `json:"status,omitempty"`
+		Priority *string `json:"priority,omitempty"`
+		Nature   *string `json:"nature,omitempty"`
+	}
+	if err := json.NewDecoder(e.Request.Body).Decode(&input); err != nil {
+		return e.BadRequestError("Invalid request body", err)
+	}
+	if input.TaskId == "" {
+		return e.BadRequestError("Task ID is required", nil)
+	}
+	// At least one field must be present to update
+	if input.Status == nil && input.Priority == nil && input.Nature == nil {
+		return e.BadRequestError("No fields to update", nil)
+	}
+
+	// 3. Find the task by ID
+	task, _ := e.App.FindRecordById("tasks", input.TaskId)
+	if task == nil {
+		return e.BadRequestError("Task does not exist", nil)
+	}
+
+	// 4. Check if the user is a member of the project
+	filter := "project = {:project} && user_id = {:user_id}"
+	params := map[string]any{
+		"project": task.GetString("project"),
+		"user_id": user.Id,
+	}
+	memberRecord, _ := e.App.FindFirstRecordByFilter("users_projects", filter, params)
+	if memberRecord == nil {
+		return e.ForbiddenError("You are not a member of this project", nil)
+	}
+
+	// 5. Update only provided fields
+	if input.Status != nil {
+		task.Set("status", *input.Status)
+	}
+	if input.Priority != nil {
+		task.Set("priority", *input.Priority)
+	}
+	if input.Nature != nil {
+		task.Set("nature", *input.Nature)
+	}
+
+	// 6. Save the task
+	if err := e.App.Save(task); err != nil {
+		return e.InternalServerError("Failed to update task", err)
+	}
+
+	return e.JSON(http.StatusOK, map[string]any{
+		"message": "Task updated successfully",
+	})
+}
+
+func UpdateTasksBulk(e *core.RequestEvent) error {
+	user := e.Auth
+	if user == nil {
+		return e.UnauthorizedError("Not authenticated", nil)
+	}
+
+	// Accept fields as pointers to detect their presence (not just empty string)
+	var input struct {
+		Tasks []struct {
+			TaskId string `json:"task_id"`
+		} `json:"tasks"`
+		Status   *string `json:"status,omitempty"`
+		Priority *string `json:"priority,omitempty"`
+		Nature   *string `json:"nature,omitempty"`
+	}
+
+	if err := json.NewDecoder(e.Request.Body).Decode(&input); err != nil {
+		return e.BadRequestError("Invalid request body", err)
+	}
+
+	if len(input.Tasks) == 0 {
+		return e.BadRequestError("No tasks provided", nil)
+	}
+
+	// Do not require at least one field, but optionally you may check that at least one is set
+	if input.Status == nil && input.Priority == nil && input.Nature == nil {
+		return e.BadRequestError("No fields to update", nil)
+	}
+
+	for _, taskInfo := range input.Tasks {
+		if taskInfo.TaskId == "" {
+			return e.BadRequestError("Invalid task ID", nil)
+		}
+
+		task, _ := e.App.FindRecordById("tasks", taskInfo.TaskId)
+		if task == nil {
+			return e.BadRequestError("Task does not exist: "+taskInfo.TaskId, nil)
+		}
+
+		filter := "project = {:project} && user_id = {:user_id}"
+		params := map[string]any{
+			"project": task.GetString("project"),
+			"user_id": user.Id,
+		}
+		memberRecord, _ := e.App.FindFirstRecordByFilter("users_projects", filter, params)
+		if memberRecord == nil {
+			return e.ForbiddenError("You are not member of the project: "+task.GetString("project"), nil)
+		}
+
+		// Only set fields if present
+		if input.Status != nil {
+			task.Set("status", *input.Status)
+		}
+		if input.Priority != nil {
+			task.Set("priority", *input.Priority)
+		}
+		if input.Nature != nil {
+			task.Set("nature", *input.Nature)
+		}
+
+		if err := e.App.Save(task); err != nil {
+			return e.InternalServerError("Failed to update task "+taskInfo.TaskId, err)
+		}
+	}
+
+	return e.JSON(http.StatusOK, map[string]any{
+		"message": "Tasks updated successfully",
+	})
+}

@@ -13,7 +13,7 @@ func RegisterFormRoutes(e *core.ServeEvent) {
 		return formfunctions.CreateProject(e)
 	}).Bind(apis.RequireAuth()) // Require authentication, remove if not needed
 
-	e.Router.POST("/api/forms/project/delete", func(e *core.RequestEvent) error {
+	e.Router.DELETE("/api/forms/project/delete", func(e *core.RequestEvent) error {
 		return formfunctions.DeleteProject(e)
 	}).Bind(apis.RequireAuth()) // Require authentication, remove if not needed
 
@@ -21,7 +21,7 @@ func RegisterFormRoutes(e *core.ServeEvent) {
 		return formfunctions.AddUserToProjectByEmail(e)
 	}).Bind(apis.RequireAuth()) // Require authentication, remove if not needed
 
-	e.Router.POST("/api/forms/project/removeUser", func(e *core.RequestEvent) error {
+	e.Router.DELETE("/api/forms/project/removeUser", func(e *core.RequestEvent) error {
 		return formfunctions.RemoveUserFromProject(e)
 	}).Bind(apis.RequireAuth()) // Require authentication, remove if not needed
 
@@ -41,7 +41,7 @@ func RegisterFormRoutes(e *core.ServeEvent) {
 		return formfunctions.SetStatus(e)
 	}).Bind(apis.RequireAuth()) // Require authentication, remove if not needed
 
-	e.Router.POST("/api/forms/project/task/delete", func(e *core.RequestEvent) error {
+	e.Router.DELETE("/api/forms/project/task/delete", func(e *core.RequestEvent) error {
 		return formfunctions.DeleteTask(e)
 	}).Bind(apis.RequireAuth()) // Require authentication, remove if not needed
 
@@ -53,8 +53,16 @@ func RegisterFormRoutes(e *core.ServeEvent) {
 		return formfunctions.SetStatusBulk(e)
 	}).Bind(apis.RequireAuth()) // Require authentication, remove if not needed
 
-	e.Router.POST("/api/forms/project/task/deletebulk", func(e *core.RequestEvent) error {
+	e.Router.DELETE("/api/forms/project/task/deletebulk", func(e *core.RequestEvent) error {
 		return formfunctions.DeleteTasksBulk(e)
+	}).Bind(apis.RequireAuth()) // Require authentication, remove if not needed
+
+	e.Router.PATCH("/api/forms/project/task/update", func(e *core.RequestEvent) error {
+		return formfunctions.UpdateTask(e)
+	}).Bind(apis.RequireAuth()) // Require authentication, remove if not needed
+
+	e.Router.PATCH("/api/forms/project/task/bulk", func(e *core.RequestEvent) error {
+		return formfunctions.UpdateTasksBulk(e)
 	}).Bind(apis.RequireAuth()) // Require authentication, remove if not needed
 
 	// Example: Register a GET route for fetching form data
