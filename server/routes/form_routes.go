@@ -65,11 +65,11 @@ func RegisterFormRoutes(e *core.ServeEvent) {
 		return formfunctions.UpdateTasksBulk(e)
 	}).Bind(apis.RequireAuth()) // Require authentication, remove if not needed
 
-	e.Router.GET("/api/forms/project/tasks/members", func(e *core.RequestEvent) error {
+	e.Router.GET("/api/forms/project/task/members", func(e *core.RequestEvent) error {
 		return formfunctions.GetMemebers(e)
 	}).Bind(apis.RequireAuth()) // Require authentication, remove if not needed
 
-	e.Router.POST("/api/forms/project/tasks/add", func(e *core.RequestEvent) error {
+	e.Router.POST("/api/forms/project/task/add", func(e *core.RequestEvent) error {
 		return formfunctions.AddTaskDirect(e)
 	}).Bind(apis.RequireAuth()) // Require authentication, remove if not needed
 

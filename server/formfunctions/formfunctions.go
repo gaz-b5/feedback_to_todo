@@ -935,7 +935,7 @@ func AddTaskDirect(e *core.RequestEvent) error {
 
 	// 2. Parse the JSON input
 	var input struct {
-		ProjectId   string `json:"project"`
+		ProjectId   string `json:"project_id"`
 		Description string `json:"description"`
 		Nature      string `json:"nature"`
 		Priority    string `json:"priority"`

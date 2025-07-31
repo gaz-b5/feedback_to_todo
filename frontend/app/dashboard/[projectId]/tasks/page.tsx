@@ -10,6 +10,7 @@ import { UserNav } from "@/components/user-nav"
 import { taskSchema } from "@/data/schema"
 import { headers } from "next/headers";
 
+
 const baseUrl = process.env.NEXT_S_PUBLIC_BASE_URL || "http://localhost:3000";
 
 interface PageProps {
@@ -94,7 +95,7 @@ export default async function TaskPage({ params }: PageProps) {
                         <UserNav />
                     </div>
                 </div>
-                <DataTable data={tasks} columns={columns} />
+                <DataTable data={tasks} columns={columns} params={{ projectId }} />
             </div>
         </>
     )

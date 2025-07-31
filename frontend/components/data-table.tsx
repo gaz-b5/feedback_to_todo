@@ -31,11 +31,13 @@ import { DataTableToolbar } from "./data-table-toolbar"
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
   data: TData[]
+  params: { projectId: string; };
 }
 
 export function DataTable<TData, TValue>({
   columns,
   data,
+  params
 }: DataTableProps<TData, TValue>) {
   const [rowSelection, setRowSelection] = React.useState({})
   const [columnVisibility, setColumnVisibility] =
@@ -44,6 +46,8 @@ export function DataTable<TData, TValue>({
     []
   )
   const [sorting, setSorting] = React.useState<SortingState>([])
+
+  const { projectId } = params;
 
   const table = useReactTable({
     data,
@@ -74,7 +78,7 @@ export function DataTable<TData, TValue>({
 
   return (
     <div className="flex flex-col gap-4">
-      <DataTableToolbar table={table} />
+      <DataTableToolbar table={table} params={{ projectId }} />
       <div className="overflow-hidden rounded-md border">
         <Table>
           <TableHeader>
@@ -86,9 +90,9 @@ export function DataTable<TData, TValue>({
                       {header.isPlaceholder
                         ? null
                         : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext()
-                          )}
+                          header.column.columnDef.header,
+                          header.getContext()
+                        )}
                     </TableHead>
                   )
                 })}
