@@ -6,6 +6,8 @@ import (
 	"net/http"
 	"strings"
 
+	"David/data_point"
+	"David/llm_functions"
 	"David/qdrant_api"
 
 	"github.com/pocketbase/pocketbase/core"
@@ -869,5 +871,148 @@ func UpdateTasksBulk(e *core.RequestEvent) error {
 
 	return e.JSON(http.StatusOK, map[string]any{
 		"message": "Tasks updated successfully",
+	})
+}
+
+func GetMemebers(e *core.RequestEvent) error {
+	// 1. Get the authenticated user (now e.Auth)
+	user := e.Auth
+	if user == nil {
+		return e.UnauthorizedError("Not authenticated", nil)
+	}
+
+	// 2. Parse the JSON input
+	projectId := e.Request.URL.Query().Get("projectId")
+	if projectId == "" {
+		return e.BadRequestError("Project Id is required", nil)
+	}
+
+	// 3. Find the project by Id
+	project, err := e.App.FindRecordById("projects", projectId)
+	if project == nil {
+		return e.BadRequestError("Project does not exist", nil)
+	}
+
+	// 4. Check if the user is the owner of the project
+	if project.Get("owner_id") != user.Id {
+		return e.ForbiddenError("Only the owner can get members of the project", nil)
+	}
+
+	// 5. Find all users_projects records for this project
+	filter := "project = {:project}"
+	params := map[string]any{"project": projectId}
+	memberships, err := e.App.FindRecordsByFilter("users_projects", filter, "", 1000, 0, params)
+	if err != nil {
+		return e.InternalServerError("Failed to fetch members", err)
+	}
+
+	// 6. Collect user IDs and roles from memberships
+	members := make([]map[string]any, len(memberships))
+	for i, m := range memberships {
+		user, _ := e.App.FindRecordById("users", m.GetString("user_id"))
+
+		members[i] = map[string]any{
+			"user_id": m.GetString("user_id"),
+			"eamil":   user.GetString("email"),
+			"name":    user.GetString("name"),
+			"role":    m.GetString("role"),
+		}
+	}
+
+	// 7. Respond with the list of members
+	return e.JSON(http.StatusOK, map[string]any{
+		"members": members,
+	})
+}
+
+// For when the user wants to add a task directly, without any llm intervention
+func AddTaskDirect(e *core.RequestEvent) error {
+	// 1. Get the authenticated user (now e.Auth)
+	user := e.Auth
+	if user == nil {
+		return e.UnauthorizedError("Not authenticated", nil)
+	}
+
+	// 2. Parse the JSON input
+	var input struct {
+		ProjectId   string `json:"project"`
+		Description string `json:"description"`
+		Nature      string `json:"nature"`
+		Priority    string `json:"priority"`
+		Status      string `json:"status"`
+	}
+	if err := json.NewDecoder(e.Request.Body).Decode(&input); err != nil {
+		return e.BadRequestError("Invalid request body", err)
+	}
+
+	// 3. Check if the user is a member of the project
+
+	//get the project by ID
+	project, err := e.App.FindRecordById("projects", input.ProjectId)
+	if project == nil || err != nil {
+		return e.BadRequestError("Project does not exist", nil)
+	}
+
+	filter := "project = {:project} && user_id = {:user_id}"
+	params := map[string]any{
+		"project": input.ProjectId,
+		"user_id": user.Id,
+	}
+	memberRecord, _ := e.App.FindFirstRecordByFilter("users_projects", filter, params)
+	if memberRecord == nil {
+		return e.ForbiddenError("You are not a member for this project", nil)
+	}
+
+	// 4. Create and save the new task
+	taskCollection, err := e.App.FindCollectionByNameOrId("tasks")
+	if err != nil {
+		return e.InternalServerError("Tasks collection not found", err)
+	}
+
+	task := core.NewRecord(taskCollection)
+	task.Set("title", llm_functions.GenerateTitle(input.Description))
+	task.Set("description", input.Description)
+	task.Set("occurrence", 1)
+	task.Set("priority", input.Priority)
+	task.Set("nature", input.Nature)
+	task.Set("status", input.Status)
+	task.Set("project", input.ProjectId)
+
+	if err := e.App.Save(task); err != nil {
+		return e.InternalServerError("Failed to create task", err)
+	}
+
+	dataPoint := data_point.DataPoint{
+		TaskID:    task.Id,
+		Embedding: llm_functions.GenerateEmbedding(input.Description),
+	}
+
+	projectName, _ := project.Get("name").(string)
+	qdrantDBId := qdrant_api.UpdateAndCreateDataPoint(dataPoint, projectName)
+
+	if qdrantDBId == "" {
+		return e.InternalServerError("Failed to create task in Qdrant", nil)
+	}
+
+	task.Set("qdrantDBId", qdrantDBId)
+
+	if err := e.App.Save(task); err != nil {
+		return e.InternalServerError("Failed to update qdrantDBId in task", err)
+	}
+
+	joinCollection, err := e.App.FindCollectionByNameOrId("emails_tasks")
+	if err != nil {
+		return e.InternalServerError("emails_tasks collection not found", err)
+	}
+	joinRecord := core.NewRecord(joinCollection)
+	joinRecord.Set("task", task.Id)
+
+	if err := e.App.Save(joinRecord); err != nil {
+		return e.InternalServerError("Failed to add email to task", err)
+	}
+
+	return e.JSON(http.StatusCreated, map[string]any{
+		"message": "Task created successfully",
+		"task":    task.PublicExport(),
 	})
 }

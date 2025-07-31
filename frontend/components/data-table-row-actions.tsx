@@ -1,5 +1,6 @@
 "use client"
 
+import React, { useState } from "react"
 import { Row } from "@tanstack/react-table"
 import { MoreHorizontal } from "lucide-react"
 
@@ -21,6 +22,17 @@ import {
 import { labels, statuses, priorities } from "../data/data"
 import { taskSchema } from "../data/schema"
 import { useRouter } from "next/navigation";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"
 
 const baseUrl = process.env.NEXT_S_PUBLIC_BASE_URL || "http://localhost:3000";
 
@@ -33,6 +45,10 @@ export function DataTableRowActions<TData>({
 }: DataTableRowActionsProps<TData>) {
   const router = useRouter();
   const task = taskSchema.parse(row.original)
+
+  const [isDialogOpen, setIsDialogOpen] = useState(false)
+  const [menuOpen, setMenuOpen] = useState(false)
+
 
   // Generic update function, calls router.refresh() after success
   async function updateTask(fields: Partial<{ status: string; priority: string; nature: string }>) {
@@ -61,9 +77,9 @@ export function DataTableRowActions<TData>({
   }
 
   async function deleteTask() {
-    if (!confirm("Are you sure you want to delete this task?")) {
-      return; // Cancel delete if user aborts
-    }
+    // if (!confirm("Are you sure you want to delete this task?")) {
+    //   return; // Cancel delete if user aborts
+    // }
 
     try {
       const res = await fetch(`${baseUrl}/api/tasks/delete`, {
@@ -89,7 +105,7 @@ export function DataTableRowActions<TData>({
   }
 
   return (
-    <DropdownMenu>
+    <DropdownMenu open={menuOpen} onOpenChange={setMenuOpen}>
       <DropdownMenuTrigger asChild>
         <Button
           variant="ghost"
@@ -148,10 +164,51 @@ export function DataTableRowActions<TData>({
           </DropdownMenuSubContent>
         </DropdownMenuSub>
         <DropdownMenuSeparator />
-        <DropdownMenuItem variant="destructive" onClick={deleteTask}>
+        {/* <DropdownMenuItem variant="destructive" onClick={deleteTask}>
           Delete
           <DropdownMenuShortcut>⌘⌫</DropdownMenuShortcut>
-        </DropdownMenuItem>
+        </DropdownMenuItem> */}
+        <AlertDialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+          <AlertDialogTrigger asChild>
+            <DropdownMenuItem
+              variant="destructive"
+              onClick={(e) => {
+                e.preventDefault()    // prevent menu from closing
+                setIsDialogOpen(true)   // open dialog
+              }}
+            >
+              Delete
+              <DropdownMenuShortcut>⌘⌫</DropdownMenuShortcut>
+            </DropdownMenuItem>
+          </AlertDialogTrigger>
+
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+              <AlertDialogDescription>
+                This action cannot be undone. This will permanently delete the task and remove
+                its data.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel
+                onClick={() => {
+                  setIsDialogOpen(false)
+                  setMenuOpen(false)
+                }}
+              >Cancel</AlertDialogCancel>
+              <AlertDialogAction
+                onClick={() => {
+                  deleteTask()
+                  setIsDialogOpen(false)
+                  setMenuOpen(false)
+                }}
+              >
+                Continue
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </DropdownMenuContent>
     </DropdownMenu>
   )

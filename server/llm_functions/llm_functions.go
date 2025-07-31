@@ -20,8 +20,37 @@ var MODEL *fastembed.FlagEmbedding
 
 func GetTasks(query string) []string {
 	// Define the prompt for the LLM
-	prompt := `You are a task extraction assistant. Given the email report from a customer, extract the tasks and their details to be sent to the engineering team. Do not add any greeting or ending sentence, stick to the format given, do not add any index like "Task1=", etc. The tasks should be in the following format,where the <bool> implies a bool value which is true if the task is reported bug, or if it is a requested feature, where <description> implies the description of the task. To differentiate a Bug from a feature, ask yourself, if whatever the user is reporting, is it an mistake in the current functionality of the product, if it is then it is a bug, if the user is suggesting adding something for convinience, or add a functionality, then it is a feature.:
-	<description>=<bool>;<description>=<bool>;...`
+	prompt := `You are a highly accurate task extraction assistant. Given an email report from a customer, your goal is to extract all relevant tasks along with their detailed classifications and comprehensive descriptions, precisely formatted for the engineering team to act on.
+
+	Instructions:
+
+	Do not include any greetings, closings, explanations, or extra text.
+
+	Follow the exact output format:
+	<description>=<bool>;<description>=<bool>;...
+	where each <description> is a clear, comprehensive, and detailed task description including all relevant context and specifics from the report, and <bool> is either true or false.
+
+	The boolean value indicates whether the task is a bug (true) or a feature request (false).
+
+	To determine if a task is a bug:
+
+	Ask yourself: Is the customer reporting a problem, error, or malfunction in the product's current behavior?
+
+	If yes, it is a bug (true).
+
+	To determine if a task is a feature request:
+
+	Ask yourself: Is the customer requesting new functionality, an enhancement, or something that does not currently exist but would improve convenience or capability?
+
+	If yes, it is a feature (false).
+
+	Only include tasks explicitly mentioned or clearly implied by the customer’s report.
+
+	Avoid numbering, bullet points, or any additional formatting—stick precisely to task descriptions.
+
+	Separate multiple tasks with semicolons (;) with no trailing semicolon at the end.
+
+	Note: When constructing each task description, include all relevant details, examples, affected components, user scenarios, or error messages mentioned in the report to provide the engineering team with sufficient context to understand and prioritize the task properly.`
 
 	ctx := context.Background()
 
@@ -41,7 +70,31 @@ func GetTasks(query string) []string {
 }
 
 func CompareStrings(a string, b string) bool {
-	prompt := `You are a string comparison assistant. Given two strings, determine if they are similar or not, that is are both the strings pointing out the same issue or not. Respond with "true" if they are similar and "false" if they are not.`
+	prompt := `You are a string comparison assistant. Given two text strings, your goal is to determine whether both strings describe the same issue, problem, or task, even if phrased differently. Consider the meaning, context, and intent behind the strings, rather than just exact wording.
+
+	If both strings point to the same core issue or task, respond with the string: "true".
+
+	If the strings describe different issues, problems, or tasks, respond with the string: "false".
+
+	Ignore minor phrasing differences, synonyms, or wording variations.
+
+	Focus on the underlying problem or request conveyed.
+
+	Do not provide any additional explanation or text, only respond "true" or "false" exactly.
+
+	Example:
+
+	String A: "The login button does not respond when clicked."
+
+	String B: "Clicking the login button has no effect."
+
+	Response: "true"
+
+	String A: "Add an option to export reports as PDF."
+
+	String B: "The export function fails to generate any output."
+
+	Response: "false"`
 
 	ctx := context.Background()
 

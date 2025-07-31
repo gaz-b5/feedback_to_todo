@@ -27,10 +27,10 @@ func UpdateAndCreateDataPoint(dataPoint dp.DataPoint, collectionId string) strin
 
 	ctx := context.Background()
 
-	uniqueID := uuid.New().String()
+	qdrantDBId := uuid.New().String()
 
 	point := &qdrant.PointStruct{
-		Id: qdrant.NewIDUUID(uniqueID),
+		Id: qdrant.NewIDUUID(qdrantDBId),
 		Vectors: &qdrant.Vectors{
 			VectorsOptions: &qdrant.Vectors_Vector{
 				Vector: &qdrant.Vector{
@@ -51,7 +51,7 @@ func UpdateAndCreateDataPoint(dataPoint dp.DataPoint, collectionId string) strin
 		panic(err)
 	}
 
-	return uniqueID
+	return qdrantDBId
 }
 
 func CreateQdrantPayload(data dp.DataPoint) map[string]any {

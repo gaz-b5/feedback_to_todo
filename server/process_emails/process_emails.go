@@ -137,7 +137,7 @@ func ProcessEmailContent(e *core.RequestEvent) error {
 				newTask.Set("status", dataPoint.Status.String())
 				// newTask.Set("embedding", dataPoint.Embedding)
 				newTask.Set("project", input.ProjectId)
-				newTask.Set("title", llm_functions.GenerateTitle(dataPoint.Content))
+				newTask.Set("title", dataPoint.Content)
 
 				if err := e.App.Save(newTask); err != nil {
 					return e.InternalServerError("Could not create new task", err)
@@ -183,7 +183,7 @@ func ProcessEmailContent(e *core.RequestEvent) error {
 			newTask.Set("status", dataPoint.Status.String())
 			// newTask.Set("embedding", dataPoint.Embedding)
 			newTask.Set("project", input.ProjectId)
-			newTask.Set("title", llm_functions.GenerateTitle(dataPoint.Content))
+			newTask.Set("title", dataPoint.Content)
 
 			if err := e.App.Save(newTask); err != nil {
 				return e.InternalServerError("Could not create new task", err)
