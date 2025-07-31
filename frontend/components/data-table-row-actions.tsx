@@ -60,6 +60,34 @@ export function DataTableRowActions<TData>({
     }
   }
 
+  async function deleteTask() {
+    if (!confirm("Are you sure you want to delete this task?")) {
+      return; // Cancel delete if user aborts
+    }
+
+    try {
+      const res = await fetch(`${baseUrl}/api/tasks/delete`, {
+        method: "DELETE",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          task_id: task.id,
+        }),
+      });
+
+      if (!res.ok) {
+        throw new Error("Delete failed");
+      }
+
+      router.refresh(); // Refresh table to reflect deletion
+    } catch (err) {
+      alert("Failed to delete task");
+      console.error(err);
+    }
+  }
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -120,7 +148,7 @@ export function DataTableRowActions<TData>({
           </DropdownMenuSubContent>
         </DropdownMenuSub>
         <DropdownMenuSeparator />
-        <DropdownMenuItem variant="destructive">
+        <DropdownMenuItem variant="destructive" onClick={deleteTask}>
           Delete
           <DropdownMenuShortcut>⌘⌫</DropdownMenuShortcut>
         </DropdownMenuItem>

@@ -507,7 +507,7 @@ func DeleteTask(e *core.RequestEvent) error {
 
 	qdrantDBId, ok := task.Get("qdrantDBId").(string)
 	if !ok || qdrantDBId == "" {
-		return e.InternalServerError("Task missing uniqueDBId for Qdrant", nil)
+		return e.InternalServerError("Task missing qdrantDBId for Qdrant", nil)
 	}
 
 	// Create point ID for Qdrant deletion (assuming UUID strings used)

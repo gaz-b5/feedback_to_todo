@@ -143,13 +143,13 @@ func ProcessEmailContent(e *core.RequestEvent) error {
 					return e.InternalServerError("Could not create new task", err)
 				}
 				dataPoint.TaskID = newTask.Id
-				uniqueDBId := qdrant_api.UpdateAndCreateDataPoint(dataPoint, projectName)
+				qdrantDBId := qdrant_api.UpdateAndCreateDataPoint(dataPoint, projectName)
 
-				newTask.Set("uniqueDBId", uniqueDBId)
+				newTask.Set("qdrantDBId", qdrantDBId)
 
-				// Save the task record again to update uniqueDBId field
+				// Save the task record again to update qdrantDBId field
 				if err := e.App.Save(newTask); err != nil {
-					return e.InternalServerError("Failed to update uniqueDBId in task", err)
+					return e.InternalServerError("Failed to update qdrantDBId in task", err)
 				}
 
 				joinCollection, err := e.App.FindCollectionByNameOrId("emails_tasks")
@@ -189,13 +189,13 @@ func ProcessEmailContent(e *core.RequestEvent) error {
 				return e.InternalServerError("Could not create new task", err)
 			}
 			dataPoint.TaskID = newTask.Id
-			uniqueDBId := qdrant_api.UpdateAndCreateDataPoint(dataPoint, projectName)
+			qdrantDBId := qdrant_api.UpdateAndCreateDataPoint(dataPoint, projectName)
 
-			newTask.Set("uniqueDBId", uniqueDBId)
+			newTask.Set("qdrantDBId", qdrantDBId)
 
-			// Save the task record again to update uniqueDBId field
+			// Save the task record again to update qdrantDBId field
 			if err := e.App.Save(newTask); err != nil {
-				return e.InternalServerError("Failed to update uniqueDBId in task", err)
+				return e.InternalServerError("Failed to update qdrantDBId in task", err)
 			}
 
 			joinCollection, err := e.App.FindCollectionByNameOrId("emails_tasks")
