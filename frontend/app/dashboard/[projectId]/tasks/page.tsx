@@ -1,14 +1,38 @@
-import { promises as fs } from "fs"
-import path from "path"
 import { Metadata } from "next"
 import Image from "next/image"
 import { z } from "zod"
 
 import { columns } from "@/components/columns"
 import { DataTable } from "@/components/data-table"
-import { UserNav } from "@/components/user-nav"
 import { taskSchema } from "@/data/schema"
 import { headers } from "next/headers";
+import {
+    Dialog,
+    DialogClose,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+    DialogTrigger,
+} from "@/components/ui/dialog"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Button } from "@/components/ui/button"
+import { Settings } from 'lucide-react';
+import { Separator } from "@/components/ui/separator"
+import { ScrollArea } from "@/components/ui/scroll-area"
+import {
+    Select,
+    SelectContent,
+    SelectGroup,
+    SelectItem,
+    SelectLabel,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select"
+import { roles } from "@/data/data"
+import { AddMemberForm } from "@/components/add-member-form"
 
 
 const baseUrl = process.env.NEXT_S_PUBLIC_BASE_URL || "http://localhost:3000";
@@ -92,11 +116,40 @@ export default async function TaskPage({ params }: PageProps) {
                         </p>
                     </div>
                     <div className="flex items-center gap-2">
-                        <UserNav />
-                    </div>
-                </div>
+                        <Dialog>
+                            <DialogTrigger asChild>
+                                <Button variant="secondary" className="h-9 px-4">
+                                    <Settings />
+                                </Button>
+                            </DialogTrigger>
+
+
+                            <DialogContent className="sm:max-w-[600px] sm:max-h-[600px]" showCloseButton={false}>
+
+                                <ScrollArea>
+                                    <DialogHeader>
+                                        <DialogTitle>Project settings</DialogTitle>
+                                    </DialogHeader>
+
+                                    <Separator className="my-8" />
+
+                                    <DialogTitle>Add member</DialogTitle>
+
+                                    <AddMemberForm projectId={projectId} />
+
+                                    <Separator className="my-8" />
+
+                                    <DialogTitle>Edit members</DialogTitle>
+
+                                </ScrollArea>
+                            </DialogContent>
+
+                        </Dialog >
+                    </div >
+                </div >
                 <DataTable data={tasks} columns={columns} params={{ projectId }} />
-            </div>
+            </div >
         </>
     )
 }
+
