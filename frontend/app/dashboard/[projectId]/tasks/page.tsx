@@ -33,6 +33,7 @@ import {
 } from "@/components/ui/select"
 import { roles } from "@/data/data"
 import { AddMemberForm } from "@/components/add-member-form"
+import { EditMembers } from "@/components/edit-members-form"
 
 
 const baseUrl = process.env.NEXT_S_PUBLIC_BASE_URL || "http://localhost:3000";
@@ -134,12 +135,13 @@ export default async function TaskPage({ params }: PageProps) {
                                     <Separator className="my-8" />
 
                                     <DialogTitle>Add member</DialogTitle>
-
                                     <AddMemberForm projectId={projectId} />
 
                                     <Separator className="my-8" />
 
-                                    <DialogTitle>Edit members</DialogTitle>
+                                    <DialogTitle className="mb-2">Edit members</DialogTitle>
+
+                                    <EditMembers projectId={projectId} />
 
                                 </ScrollArea>
                             </DialogContent>

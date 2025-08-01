@@ -147,9 +147,9 @@ type AddUserByEmailInput struct {
 	Role      string `json:"role"` // "admin" or "viewer"
 }
 
-type ReomveUserByEmailInput struct {
-	ProjectId string `json:"project_id"`
-	Email     string `json:"email"`
+type ReomveUserByIdInput struct {
+	ProjectId string `json:"project"`
+	MemberId  string `json:"member_id"`
 }
 
 // Handler: Only allow if the requester is an admin for the project
@@ -224,11 +224,11 @@ func RemoveUserFromProject(e *core.RequestEvent) error {
 	}
 
 	// Parse input
-	var input ReomveUserByEmailInput
+	var input ReomveUserByIdInput
 	if err := json.NewDecoder(e.Request.Body).Decode(&input); err != nil {
 		return e.BadRequestError("Invalid request body", err)
 	}
-	if input.ProjectId == "" || input.Email == "" {
+	if input.ProjectId == "" || input.MemberId == "" {
 		return e.BadRequestError("Missing or invalid fields", nil)
 	}
 
@@ -244,21 +244,20 @@ func RemoveUserFromProject(e *core.RequestEvent) error {
 		return e.ForbiddenError("You are not an admin for this project", nil)
 	}
 
-	// 2. Find the user to remove by email
-	userToRemove, err := e.App.FindAuthRecordByEmail("users", input.Email)
-	if err != nil || userToRemove == nil {
-		return e.BadRequestError("No user found with that email", err)
-	}
-
 	// 3. Check if the user is already a member
 	filter = "project = {:project} && user_id = {:user_id}"
 	params = map[string]any{
 		"project": input.ProjectId,
-		"user_id": userToRemove.Id,
+		"user_id": input.MemberId,
 	}
 	membership, err := e.App.FindFirstRecordByFilter("users_projects", filter, params)
+	project, err := e.App.FindRecordById("projects", input.ProjectId)
 	if err != nil || membership == nil {
 		return e.BadRequestError("User is not a member of this project", nil)
+	} else if membership.GetString("user_id") == requestingUser.Id {
+		return e.BadRequestError("You cannot remove yourself from the project", nil)
+	} else if membership.GetString("role") == project.GetString("owner_id") {
+		return e.BadRequestError("You cannot remove the project owner from the project", nil)
 	}
 
 	// 4. Remove the user from the project (delete the membership record)
@@ -268,7 +267,7 @@ func RemoveUserFromProject(e *core.RequestEvent) error {
 
 	return e.JSON(http.StatusOK, map[string]any{
 		"message":    "User removed from project successfully",
-		"user_id":    userToRemove.Id,
+		"user_id":    input.MemberId,
 		"project_id": input.ProjectId,
 	})
 
@@ -686,14 +685,20 @@ func GetMemebers(e *core.RequestEvent) error {
 		return e.BadRequestError("Project does not exist", nil)
 	}
 
-	// 4. Check if the user is the owner of the project
-	if project.Get("owner_id") != user.Id {
-		return e.ForbiddenError("Only the owner can get members of the project", nil)
+	// 4. Check if the user is the member of the project
+	filter := "project = {:project} && user_id = {:user_id}"
+	params := map[string]any{
+		"project": projectId,
+		"user_id": user.Id,
+	}
+	memberRecord, _ := e.App.FindFirstRecordByFilter("users_projects", filter, params)
+	if memberRecord == nil {
+		return e.ForbiddenError("You are not member of the project: "+projectId, nil)
 	}
 
 	// 5. Find all users_projects records for this project
-	filter := "project = {:project}"
-	params := map[string]any{"project": projectId}
+	filter = "project = {:project}"
+	params = map[string]any{"project": projectId}
 	memberships, err := e.App.FindRecordsByFilter("users_projects", filter, "", 1000, 0, params)
 	if err != nil {
 		return e.InternalServerError("Failed to fetch members", err)
@@ -706,7 +711,7 @@ func GetMemebers(e *core.RequestEvent) error {
 
 		members[i] = map[string]any{
 			"user_id": m.GetString("user_id"),
-			"eamil":   user.GetString("email"),
+			"email":   user.GetString("email"),
 			"name":    user.GetString("name"),
 			"role":    m.GetString("role"),
 		}
