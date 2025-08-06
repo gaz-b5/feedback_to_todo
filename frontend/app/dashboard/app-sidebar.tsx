@@ -22,6 +22,7 @@ import Link from 'next/link'
 import { NextRequest } from 'next/server';
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
+import { Input } from "@/components/ui/input";
 
 type Project = {
   id: string;
@@ -39,30 +40,31 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const [projects, setProjects] = useState<Project[] | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [newProjectName, setNewProjectName] = useState("");
+
+  async function fetchProjects() {
+    setLoading(true);
+    setError(null);
+    try {
+      const res = await fetch("/api/projects", {
+        method: "GET",
+        credentials: "include",
+      });
+      if (!res.ok) {
+        throw new Error(`Error ${res.status}`);
+      }
+      const data = await res.json();
+      setProjects(data.projects);
+    } catch (err) {
+      setError("Failed to load projects");
+    } finally {
+      setLoading(false);
+    }
+  }
 
   useEffect(() => {
-    async function fetchProjects() {
-      setLoading(true);
-      setError(null);
-      try {
-        const res = await fetch("/api/projects", {
-          method: "GET",
-          credentials: "include", // Sends cookies securely (including httpOnly)
-        });
-        if (!res.ok) {
-          throw new Error(`Error ${res.status}`);
-        }
-        const data = await res.json();
-        setProjects(data.projects);
-      } catch (err) {
-        setError("Failed to load projects");
-      } finally {
-        setLoading(false);
-      }
-    }
-
     fetchProjects();
-  }, [])
+  }, []);
 
   function handleProjectClick(clickedId: string) {
     setProjects((prev) =>
@@ -73,6 +75,40 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         }))
         : null
     );
+  }
+
+  async function handleCreateProject(projectName: string) {
+    if (!projectName.trim()) {
+      setError("Project name cannot be empty");
+      return;
+    }
+
+    setLoading(true);
+    setError(null);
+    try {
+      const res = await fetch("/api/projects/add-project", {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: projectName }),
+      });
+
+      if (!res.ok) {
+        const errorData = await res.json();
+        const message = errorData.error || errorData.message || "Failed to create project";
+        setError(message);
+        return;
+      }
+
+      setNewProjectName("");
+
+      // refetch projects to update the list
+      await fetchProjects();
+    } catch (err) {
+      setError("Network error: Failed to create project");
+    } finally {
+      setLoading(false);
+    }
   }
 
 
@@ -118,10 +154,24 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         </SidebarGroup>
       </SidebarContent>
 
-      <SidebarFooter>
-        <Button variant="outline" size="sm" className="mb-4 p-6" asChild>
-          <Link href="/dashboard/create-project">Create Project <Plus /></Link>
+      <SidebarFooter className="flex flex-col gap-2 p-4">
+        <Input
+          type="text"
+          placeholder="Enter new project name"
+          value={newProjectName}
+          onChange={(e) => setNewProjectName(e.target.value)}
+          disabled={loading}
+        />
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => handleCreateProject(newProjectName)}
+          disabled={loading || newProjectName.trim() === ""}
+          className="flex items-center justify-center gap-2"
+        >
+          Create Project <Plus className="h-4 w-4" />
         </Button>
+        {error && <p className="text-red-600 text-sm mt-1">{error}</p>}
       </SidebarFooter>
 
       <SidebarRail />
