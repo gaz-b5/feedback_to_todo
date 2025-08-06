@@ -34,6 +34,7 @@ import {
 import { roles } from "@/data/data"
 import { AddMemberForm } from "@/components/add-member-form"
 import { EditMembers } from "@/components/edit-members-form"
+import { MembersSection } from "@/components/project-settings"
 
 
 const baseUrl = process.env.NEXT_S_PUBLIC_BASE_URL || "http://localhost:3000";
@@ -134,14 +135,9 @@ export default async function TaskPage({ params }: PageProps) {
 
                                     <Separator className="my-8" />
 
-                                    <DialogTitle>Add member</DialogTitle>
-                                    <AddMemberForm projectId={projectId} />
+                                    <MembersSection projectId={projectId} />
 
-                                    <Separator className="my-8" />
-
-                                    <DialogTitle className="mb-2">Edit members</DialogTitle>
-
-                                    <EditMembers projectId={projectId} />
+                                    {/* <Separator className="my-8" /> */}
 
                                 </ScrollArea>
                             </DialogContent>

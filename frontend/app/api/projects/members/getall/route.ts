@@ -20,7 +20,7 @@ export async function GET(req: NextRequest) {
     }
 
     // Call your backend securely with token in the Authorization header
-    const backendRes = await fetch(`${API_BASE_URL}/forms/project/task/members?projectId=${projectId}`, {
+    const backendRes = await fetch(`${API_BASE_URL}/forms/project/members?projectId=${projectId}`, {
         method: "GET",
         headers: {
             "Authorization": `Bearer ${token}`,

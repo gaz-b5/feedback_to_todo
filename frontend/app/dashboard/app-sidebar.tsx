@@ -7,6 +7,7 @@ import { VersionSwitcher } from "@/components/version-switcher"
 import {
   Sidebar,
   SidebarContent,
+  SidebarFooter,
   SidebarGroup,
   SidebarGroupContent,
   SidebarGroupLabel,
@@ -19,6 +20,8 @@ import {
 import { useEffect, useState } from "react";
 import Link from 'next/link'
 import { NextRequest } from 'next/server';
+import { Button } from "@/components/ui/button";
+import { Plus } from "lucide-react";
 
 type Project = {
   id: string;
@@ -114,6 +117,12 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
+
+      <SidebarFooter>
+        <Button variant="outline" size="sm" className="mb-4 p-6" asChild>
+          <Link href="/dashboard/create-project">Create Project <Plus /></Link>
+        </Button>
+      </SidebarFooter>
 
       <SidebarRail />
     </Sidebar>

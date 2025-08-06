@@ -164,7 +164,7 @@ func AddUserToProjectByEmail(e *core.RequestEvent) error {
 	if err := json.NewDecoder(e.Request.Body).Decode(&input); err != nil {
 		return e.BadRequestError("Invalid request body", err)
 	}
-	if input.ProjectId == "" || input.Email == "" || (input.Role != "admin" && input.Role != "viewer") {
+	if input.ProjectId == "" || input.Email == "" {
 		return e.BadRequestError("Missing or invalid fields", nil)
 	}
 
@@ -812,5 +812,73 @@ func AddTaskDirect(e *core.RequestEvent) error {
 	return e.JSON(http.StatusCreated, map[string]any{
 		"message": "Task created successfully",
 		"task":    task.PublicExport(),
+	})
+}
+
+type UpdateUserRoleInput struct {
+	ProjectId string `json:"project_id"`
+	MemberId  string `json:"member_id"`
+	Role      string `json:"role"` // "admin" or "viewer" (adjust to your allowed set)
+}
+
+func UpdateUserRoleInProject(e *core.RequestEvent) error {
+	user := e.Auth
+	if user == nil {
+		return e.UnauthorizedError("Not authenticated", nil)
+	}
+
+	// Parse input
+	var input UpdateUserRoleInput
+	if err := json.NewDecoder(e.Request.Body).Decode(&input); err != nil {
+		return e.BadRequestError("Invalid request body", err)
+	}
+	if input.ProjectId == "" || input.MemberId == "" {
+		return e.BadRequestError("Missing or invalid fields", nil)
+	}
+
+	// 1. Check if requester is an admin of the project
+	filter := "project = {:project} && user_id = {:user_id} && role = {:role}"
+	params := map[string]any{
+		"project": input.ProjectId,
+		"user_id": user.Id,
+		"role":    "admin",
+	}
+	adminRecord, err := e.App.FindFirstRecordByFilter("users_projects", filter, params)
+	if err != nil || adminRecord == nil {
+		return e.ForbiddenError("You are not an admin for this project", nil)
+	}
+
+	// 2. Get the project and check if MemberId is the owner
+	project, err := e.App.FindRecordById("projects", input.ProjectId)
+	if err != nil || project == nil {
+		return e.BadRequestError("Project does not exist", nil)
+	}
+	ownerId := project.GetString("owner_id")
+	if ownerId == input.MemberId {
+		return e.BadRequestError("Cannot change owner's role", nil)
+	}
+
+	// 3. Get the membership record to update
+	filter = "project = {:project} && user_id = {:user_id}"
+	params = map[string]any{
+		"project": input.ProjectId,
+		"user_id": input.MemberId,
+	}
+	memberRecord, err := e.App.FindFirstRecordByFilter("users_projects", filter, params)
+	if err != nil || memberRecord == nil {
+		return e.BadRequestError("User is not a member of this project", nil)
+	}
+
+	// 4. Update the role
+	memberRecord.Set("role", input.Role)
+	if err := e.App.Save(memberRecord); err != nil {
+		return e.InternalServerError("Failed to update user role", err)
+	}
+
+	// 5. Response
+	return e.JSON(http.StatusOK, map[string]any{
+		"message":   "User role updated",
+		"member_id": input.MemberId,
+		"role":      input.Role,
 	})
 }

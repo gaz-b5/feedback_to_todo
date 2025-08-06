@@ -32,30 +32,18 @@ type Member = {
     role: string;
 };
 
-export function EditMembers({ projectId }: { projectId: string }) {
-    const [members, setMembers] = useState<Member[]>([]);
-    const [loading, setLoading] = useState(false);
-
-    useEffect(() => {
-        async function fetchMembers() {
-            setLoading(true);
-            try {
-                const res = await fetch(`${baseUrl}/api/projects/members/getall?projectId=${projectId}`, {
-                    method: "GET",
-                    credentials: "include",
-                });
-                if (!res.ok) throw new Error("Failed to fetch members");
-                const data = await res.json();
-                setMembers(data);
-            } catch (err) {
-                // Optionally show error message
-            } finally {
-                setLoading(false);
-            }
-        }
-
-        fetchMembers();
-    }, [projectId]);
+export function EditMembers({
+    projectId,
+    members,
+    loading,
+    refetchMembers
+}: {
+    projectId: string,
+    members: Member[],
+    loading: boolean,
+    refetchMembers: () => void
+}) {
+    // Remove members and loading state here! Just use props.
 
     async function handleRemoveMember(memberId: string) {
         try {
@@ -65,14 +53,9 @@ export function EditMembers({ projectId }: { projectId: string }) {
                 credentials: "include",
                 body: JSON.stringify({ member_id: memberId, project: projectId }),
             });
-            if (!res.ok) {
-                alert(res.statusText);
-                throw new Error("Failed to remove member");
-            };
-            setMembers((prev) => prev.filter((m) => m.user_id !== memberId));
-        } catch (err) {
-            // Handle error (show notification etc.)
-        }
+            if (!res.ok) throw new Error("Failed to remove member");
+            await refetchMembers(); // refetch instead of filtering local
+        } catch (err) { }
     }
 
     async function handleRoleChange(memberId: string, newRole: string) {
@@ -83,14 +66,8 @@ export function EditMembers({ projectId }: { projectId: string }) {
                 body: JSON.stringify({ member_id: memberId, project_id: projectId, role: newRole }),
             });
             if (!res.ok) throw new Error("Failed to update member role");
-
-            // Update local state if successful
-            setMembers((prev) =>
-                prev.map((m) => (m.user_id === memberId ? { ...m, role: newRole } : m))
-            );
-        } catch (err) {
-            // Optionally handle error
-        }
+            await refetchMembers(); // refetch instead of patching local
+        } catch (err) { }
     }
 
     return (

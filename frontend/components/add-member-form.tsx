@@ -14,12 +14,12 @@ import { roles } from "@/data/data"
 
 const baseUrl = process.env.NEXT_S_PUBLIC_BASE_URL || "http://localhost:3000";
 
-export function AddMemberForm({ projectId }: { projectId: string }) {
+export function AddMemberForm({ projectId, onMemberAdded }: { projectId: string; onMemberAdded: () => void }) {
     async function handleAddMember(event: React.FormEvent<HTMLFormElement>) {
         event.preventDefault();
         const form = event.currentTarget;
         const email = (form.elements.namedItem("email") as HTMLInputElement)?.value.trim();
-        const role = (form.elements.namedItem("role") as HTMLSelectElement | null)?.value ?? roles[0]?.value;
+        const role = (form.elements.namedItem("role") as HTMLSelectElement)?.value;
 
         await fetch(`${baseUrl}/api/projects/members/add`, {
             method: "POST",
@@ -27,6 +27,7 @@ export function AddMemberForm({ projectId }: { projectId: string }) {
             body: JSON.stringify({ email, role, project_id: projectId }),
         });
         form.reset();
+        onMemberAdded(); // <--- refresh list!
     }
 
     return (

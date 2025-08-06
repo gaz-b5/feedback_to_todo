@@ -13,9 +13,12 @@ export async function POST(req: NextRequest) {
   let body: any;
   try {
     body = await req.json();
+
   } catch (err) {
     return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
   }
+  console.log(body)
+
 
   // Call your backend securely with token in the Authorization header
   const backendRes = await fetch(`${API_BASE_URL}/forms/project/addUser`, {
@@ -27,7 +30,7 @@ export async function POST(req: NextRequest) {
   });
 
   if (!backendRes.ok) {
-    return NextResponse.json({ error: "Failed to Add member"}, { status: backendRes.status });
+    return NextResponse.json({ error: "Failed to Add member" }, { status: backendRes.status });
   }
 
   const data = await backendRes.json();
