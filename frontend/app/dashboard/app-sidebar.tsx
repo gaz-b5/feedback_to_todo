@@ -105,6 +105,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       // refetch projects to update the list
       await fetchProjects();
     } catch (err) {
+      setNewProjectName("");
       setError("Network error: Failed to create project");
     } finally {
       setLoading(false);
@@ -163,7 +164,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           disabled={loading}
         />
         <Button
-          variant="outline"
+          variant="default"
           size="sm"
           onClick={() => handleCreateProject(newProjectName)}
           disabled={loading || newProjectName.trim() === ""}

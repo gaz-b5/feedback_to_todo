@@ -19,7 +19,7 @@ import {
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button"
-import { Settings } from 'lucide-react';
+import { Delete, Settings } from 'lucide-react';
 import { Separator } from "@/components/ui/separator"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import {
@@ -35,6 +35,7 @@ import { roles } from "@/data/data"
 import { AddMemberForm } from "@/components/add-member-form"
 import { EditMembers } from "@/components/edit-members-form"
 import { MembersSection } from "@/components/project-settings"
+import { DeleteProjectButton } from "@/components/delete-project"
 
 
 const baseUrl = process.env.NEXT_S_PUBLIC_BASE_URL || "http://localhost:3000";
@@ -137,7 +138,9 @@ export default async function TaskPage({ params }: PageProps) {
 
                                     <MembersSection projectId={projectId} />
 
-                                    {/* <Separator className="my-8" /> */}
+                                    <Separator className="my-8" />
+
+                                    <DeleteProjectButton projectId={projectId} />
 
                                 </ScrollArea>
                             </DialogContent>
