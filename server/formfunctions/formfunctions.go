@@ -347,7 +347,7 @@ func GetTasks(e *core.RequestEvent) error {
 	}
 
 	// 3. Find all tasks for the project
-	tasks, err := e.App.FindRecordsByFilter("tasks", "project = {:project}", "", 1000, 0, map[string]any{"project": projectId})
+	tasks, err := e.App.FindRecordsByFilter("tasks", "project = {:project}", "-created", 1000, 0, map[string]any{"project": projectId})
 	if err != nil {
 		return e.InternalServerError("Failed to fetch tasks", err)
 	}

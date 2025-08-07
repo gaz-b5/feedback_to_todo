@@ -11,30 +11,30 @@ import { DataTableColumnHeader } from "./data-table-column-header"
 import { DataTableRowActions } from "./data-table-row-actions"
 
 export const columns: ColumnDef<Task>[] = [
-  {
-    id: "select",
-    header: ({ table }) => (
-      <Checkbox
-        checked={
-          table.getIsAllPageRowsSelected() ||
-          (table.getIsSomePageRowsSelected() && "indeterminate")
-        }
-        onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-        aria-label="Select all"
-        className="translate-y-[2px]"
-      />
-    ),
-    cell: ({ row }) => (
-      <Checkbox
-        checked={row.getIsSelected()}
-        onCheckedChange={(value) => row.toggleSelected(!!value)}
-        aria-label="Select row"
-        className="translate-y-[2px]"
-      />
-    ),
-    enableSorting: false,
-    enableHiding: false,
-  },
+  // {
+  //   id: "select",
+  //   header: ({ table }) => (
+  //     <Checkbox
+  //       checked={
+  //         table.getIsAllPageRowsSelected() ||
+  //         (table.getIsSomePageRowsSelected() && "indeterminate")
+  //       }
+  //       onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+  //       aria-label="Select all"
+  //       className="translate-y-[2px]"
+  //     />
+  //   ),
+  //   cell: ({ row }) => (
+  //     <Checkbox
+  //       checked={row.getIsSelected()}
+  //       onCheckedChange={(value) => row.toggleSelected(!!value)}
+  //       aria-label="Select row"
+  //       className="translate-y-[2px]"
+  //     />
+  //   ),
+  //   enableSorting: false,
+  //   enableHiding: false,
+  // },
   {
     accessorKey: "id",
     header: ({ column }) => (
@@ -68,11 +68,12 @@ export const columns: ColumnDef<Task>[] = [
       // const label = labels.find((label) => label.value === row.original.nature)
 
       return (
-        <div className="flex gap-2">
+        <div className=" gap-2 ">
           {/* {row.original.nature && <Badge variant="outline">{row.original.nature}</Badge>} */}
-          <span className="max-w-[500px] truncate font-medium">
+          <div className="text-xs text-muted-foreground">{row.original.created}</div>
+          <div className="max-w-[500px] truncate font-medium">
             {row.getValue("title")}
-          </span>
+          </div>
         </div>
       )
     },
