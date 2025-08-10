@@ -1,3 +1,4 @@
+import { assert } from "console";
 import { NextRequest, NextResponse } from "next/server";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL as string;
@@ -17,7 +18,7 @@ export async function PATCH(req: NextRequest) {
     return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
   }
 
-  const { task_id, status, priority, nature } = body || {};
+  const { task_id, status, priority, nature, assigned } = body || {};
   if (!task_id) {
     return NextResponse.json({ error: "Missing task_id" }, { status: 400 });
   }
@@ -27,6 +28,7 @@ export async function PATCH(req: NextRequest) {
   if (status !== undefined) patchBody.status = status;
   if (priority !== undefined) patchBody.priority = priority;
   if (nature !== undefined) patchBody.nature = nature;
+  if (assigned !== undefined) patchBody.assigned = assigned;
 
   // Forward to backend (endpoint should accept PATCH for updating a single task)
   const backendRes = await fetch(`${API_BASE_URL}/forms/project/task/update`, {

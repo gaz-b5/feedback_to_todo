@@ -33,6 +33,8 @@ export const taskSchema = z.object({
       return val;
     }
   }),
+  assigned: z.string().optional(),
+  project: z.string(),
 });
 
 export type Task = z.infer<typeof taskSchema>;

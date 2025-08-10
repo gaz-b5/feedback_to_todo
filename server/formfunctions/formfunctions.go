@@ -546,6 +546,7 @@ func UpdateTask(e *core.RequestEvent) error {
 		Status   *string `json:"status,omitempty"`
 		Priority *string `json:"priority,omitempty"`
 		Nature   *string `json:"nature,omitempty"`
+		Assigned *string `json:"assigned,omitempty"`
 	}
 	if err := json.NewDecoder(e.Request.Body).Decode(&input); err != nil {
 		return e.BadRequestError("Invalid request body", err)
@@ -554,7 +555,7 @@ func UpdateTask(e *core.RequestEvent) error {
 		return e.BadRequestError("Task ID is required", nil)
 	}
 	// At least one field must be present to update
-	if input.Status == nil && input.Priority == nil && input.Nature == nil {
+	if input.Status == nil && input.Priority == nil && input.Nature == nil && input.Assigned == nil {
 		return e.BadRequestError("No fields to update", nil)
 	}
 
@@ -584,6 +585,9 @@ func UpdateTask(e *core.RequestEvent) error {
 	}
 	if input.Nature != nil {
 		task.Set("nature", *input.Nature)
+	}
+	if input.Assigned != nil {
+		task.Set("assigned", *input.Assigned)
 	}
 
 	// 6. Save the task
