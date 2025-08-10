@@ -234,9 +234,9 @@ export const columns: ColumnDef<Task>[] = [
             </PopoverTrigger>
             <PopoverContent className="w-[200px] p-0">
               <Command>
-                <CommandInput placeholder="Search framework..." />
+                <CommandInput placeholder="Search member..." />
                 <CommandList>
-                  <CommandEmpty>No framework found.</CommandEmpty>
+                  <CommandEmpty>No member found.</CommandEmpty>
                   <CommandGroup>
                     {members.map((member) => (
                       <CommandItem
