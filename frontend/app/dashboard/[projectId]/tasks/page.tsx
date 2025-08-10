@@ -115,7 +115,7 @@ export default async function TaskPage({ params }: PageProps) {
                             Welcome back!
                         </h2>
                         <p className="text-muted-foreground">
-                            Here&apos;s a list of your tasks for this month.
+                            Here&apos;s a list of the tasks for your project.
                         </p>
                     </div>
                     <div className="flex items-center gap-2">
