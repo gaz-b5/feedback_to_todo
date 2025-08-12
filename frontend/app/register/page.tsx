@@ -14,10 +14,14 @@ export default function LoginPage() {
             Acme Inc.
           </a>
         </div>
-        <div className="flex flex-1 items-center justify-center">
+        <div className="flex flex-1 items-center justify-center flex-col gap-6">
           <div className="w-full max-w-xs">
             <RegisterForm />
           </div>
+          <div className="text-sm text-muted-foreground text-center">
+            When you click the "Register" button, an email will be sent to the provided address with a <span className="underline underline-offset-4">verification link. Please check your inbox and click the link to verify your account</span> before Logging in.
+          </div>
+
         </div>
       </div>
       <div className="bg-muted relative hidden lg:block">

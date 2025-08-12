@@ -66,6 +66,7 @@ export function RegisterForm({
           Login in
         </a>
       </div>
+
     </form>
   );
 }
