@@ -133,7 +133,7 @@ export default async function TaskPage({ params }: PageProps) {
                             </DialogTrigger>
 
 
-                            <DialogContent className="sm:max-w-[600px] sm:max-h-[600px]" showCloseButton={false}>
+                            <DialogContent className="sm:max-w-[600px] sm:max-h-[600px]">
 
                                 <ScrollArea>
                                     <DialogHeader>
@@ -177,7 +177,7 @@ export default async function TaskPage({ params }: PageProps) {
                             </DialogTrigger>
 
 
-                            <DialogContent className="sm:max-w-[600px] sm:max-h-[600px]" showCloseButton={false}>
+                            <DialogContent className="sm:max-w-[600px] sm:max-h-[600px]" >
 
                                 <ScrollArea>
                                     <DialogHeader>

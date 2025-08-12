@@ -33,6 +33,8 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { Separator } from "./ui/separator"
+import { AddMail } from "@/components/add-mail"
+import { BookmarkCheck } from "lucide-react"
 
 const baseUrl = process.env.NEXT_S_PUBLIC_BASE_URL || "http://localhost:3000"
 
@@ -151,10 +153,11 @@ export function DataTableToolbar<TData>({
       </div>
       <div className="flex items-center gap-2">
         <DataTableViewOptions table={table} />
+        <AddMail projectId={params.projectId} />
         <Dialog >
           {/* <form onSubmit={handleSubmit}> */}
           <DialogTrigger asChild>
-            <Button size="sm">Add Task</Button>
+            <Button size="sm"> <BookmarkCheck />Add Task</Button>
           </DialogTrigger>
 
           <DialogContent className="sm:max-w-[600px]">
@@ -235,10 +238,10 @@ export function DataTableToolbar<TData>({
 
               <DialogFooter>
                 <DialogClose asChild>
-                  <Button variant="outline">Cancel</Button>
+                  <Button type="submit">Add task</Button>
                 </DialogClose>
                 <DialogClose asChild>
-                  <Button type="submit">Add task</Button>
+                  <Button variant="outline">Cancel</Button>
                 </DialogClose>
               </DialogFooter>
             </form>
