@@ -46,10 +46,10 @@ export function LoginForm({
           <div className="flex items-center">
             <Label htmlFor="password">Password</Label>
             <a
-              href="#"
+              href="/resetpass"
               className="ml-auto text-sm underline-offset-4 hover:underline"
             >
-              Forgot your password? (TBI)
+              Forgot your password?
             </a>
           </div>
           <Input id="password" type="password" name="password" required />
