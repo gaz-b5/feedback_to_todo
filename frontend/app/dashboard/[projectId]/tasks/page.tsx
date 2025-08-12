@@ -19,7 +19,7 @@ import {
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button"
-import { Delete, Settings } from 'lucide-react';
+import { Delete, Settings, CircleQuestionMark } from 'lucide-react';
 import { Separator } from "@/components/ui/separator"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import {
@@ -39,6 +39,7 @@ import { DeleteProjectButton } from "@/components/delete-project"
 
 
 const baseUrl = process.env.NEXT_S_PUBLIC_BASE_URL || "http://localhost:3000";
+const pbURL = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8090/api";
 
 interface PageProps {
     params: {
@@ -74,6 +75,11 @@ export default async function TaskPage({ params }: PageProps) {
 
     const hdrs = await headers();
     const cookie = hdrs.get("cookie");
+
+    const jsonTemplate = `{
+    "project_id": "${params.projectId}",
+    "content": "Your feedback content here"
+}`;
 
     const { projectId } = await params
     const res = await fetch(`${baseUrl}/api/tasks?projectId=${projectId}`, {
@@ -119,6 +125,50 @@ export default async function TaskPage({ params }: PageProps) {
                         </p>
                     </div>
                     <div className="flex items-center gap-2">
+                        <Dialog>
+                            <DialogTrigger asChild>
+                                <Button variant="secondary" className="h-9 px-4">
+                                    <CircleQuestionMark />
+                                </Button>
+                            </DialogTrigger>
+
+
+                            <DialogContent className="sm:max-w-[600px] sm:max-h-[600px]" showCloseButton={false}>
+
+                                <ScrollArea>
+                                    <DialogHeader>
+                                        <DialogTitle>How to use?</DialogTitle>
+                                    </DialogHeader>
+
+                                    <Separator className="my-8" />
+
+                                    Implement a form-type solution to send feedback, it should be structured as follows:
+
+                                    <ul className="my-6 ml-6 list-disc [&>li]:mt-6">
+                                        <li >
+                                            <div className="mb-2">Prepare a POST request to the URL:</div>
+                                            <code className="bg-muted relative rounded px-[0.4rem] py-[0.4rem] font-mono text-sm font-semibold text-muted-foreground">
+                                                {pbURL}/feedback/new
+                                            </code>
+                                        </li>
+                                        <li >
+                                            <div className="mb-2">Set the HTTP request headers to specify the content type as JSON:</div>
+                                            <code className="bg-muted relative rounded px-[0.4rem] py-[0.4rem] font-mono text-sm font-semibold text-muted-foreground">
+                                                Content-Type: application/json
+                                            </code>
+                                        </li>
+                                        <li >
+                                            <div className="mb-2">Include the request body as a JSON object with the following structure:</div>
+                                            <pre className="bg-muted rounded p-4 font-mono text-sm overflow-x-auto text-muted-foreground">
+                                                {jsonTemplate}
+                                            </pre>
+                                        </li>
+                                    </ul>
+
+                                </ScrollArea>
+                            </DialogContent>
+
+                        </Dialog >
                         <Dialog>
                             <DialogTrigger asChild>
                                 <Button variant="secondary" className="h-9 px-4">
