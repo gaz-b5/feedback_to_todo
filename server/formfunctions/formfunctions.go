@@ -894,19 +894,19 @@ func GetEmailsForTask(e *core.RequestEvent) error {
 		return e.UnauthorizedError("Not authenticated", nil)
 	}
 
-	// 2. Read `task_id` from URL query parameters (GET request)
+	// 2. Read taskId from query
 	taskId := e.Request.URL.Query().Get("taskId")
 	if taskId == "" {
 		return e.BadRequestError("Task ID is required", nil)
 	}
 
-	// 3. Find the task by ID
+	// 3. Find the task
 	task, _ := e.App.FindRecordById("tasks", taskId)
 	if task == nil {
 		return e.BadRequestError("Task does not exist", nil)
 	}
 
-	// 4. Check if the user is part of the project
+	// 4. Check membership for the project
 	projectId := task.GetString("project")
 	filter := "project = {:project} && user_id = {:user_id}"
 	params := map[string]any{
@@ -918,32 +918,58 @@ func GetEmailsForTask(e *core.RequestEvent) error {
 		return e.ForbiddenError("You are not a member of this project", nil)
 	}
 
-	// 5. Fetch emails for this project
-	emails, err := e.App.FindRecordsByFilter(
-		"emails",
-		"project = {:project}",
-		"-created", // sort newest first
+	// 5. Get all email-task relation records for this task
+	links, err := e.App.FindRecordsByFilter(
+		"emails_tasks",
+		"task = {:task}",
+		"",
 		1000,
 		0,
-		map[string]any{"project": projectId},
+		map[string]any{"task": task.Id},
 	)
+	if err != nil {
+		return e.InternalServerError("Failed to fetch email-task links", err)
+	}
+
+	// 6. Collect email IDs from the join records
+	emailIds := make([]string, len(links))
+	for i, link := range links {
+		emailIds[i] = link.GetString("email")
+	}
+
+	// 7. Early return if no linked emails
+	if len(emailIds) == 0 {
+		return e.JSON(http.StatusOK, map[string]any{"emails": []any{}})
+	}
+
+	// 8. Build OR filter exactly like GetProjects
+	var filters []string
+	params = make(map[string]any)
+	for i, id := range emailIds {
+		key := fmt.Sprintf("id%d", i)
+		filters = append(filters, fmt.Sprintf("id = {:%s}", key))
+		params[key] = id
+	}
+	filter = strings.Join(filters, " || ")
+
+	// 9. Fetch the matched emails
+	emails, err := e.App.FindRecordsByFilter("emails", filter, "-created", 1000, 0, params)
 	if err != nil {
 		return e.InternalServerError("Failed to fetch emails", err)
 	}
 
-	// 6. Format response
-	result := []map[string]any{}
-	for _, email := range emails {
-		result = append(result, map[string]any{
+	// 10. Format and return
+	result := make([]map[string]any, len(emails))
+	for i, email := range emails {
+		result[i] = map[string]any{
 			"id":      email.Id,
 			"content": email.GetString("content"),
 			"created": email.GetDateTime("created"),
 			"updated": email.GetDateTime("updated"),
 			"project": projectId,
-		})
+		}
 	}
 
-	// 7. Return JSON
 	return e.JSON(http.StatusOK, map[string]any{
 		"emails": result,
 	})

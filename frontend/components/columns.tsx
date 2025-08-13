@@ -30,6 +30,7 @@ import {
 import { useCallback, useEffect } from "react"
 
 import React from "react"
+import { ShowMail } from "./see-emails"
 
 const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
 
@@ -294,6 +295,7 @@ export const columns: ColumnDef<Task>[] = [
     cell: ({ row }) => {
       return (
         <>
+          <ShowMail taskId={row.original.id} />
           <DataTableRowActions row={row} />
         </>
       )
