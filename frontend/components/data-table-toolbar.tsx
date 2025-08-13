@@ -140,6 +140,13 @@ export function DataTableToolbar<TData>({
             options={labels}
           />
         )}
+        {/* {table.getColumn("assigned") && (
+          <DataTableFacetedFilter
+            column={table.getColumn("assigned")}
+            title="Assigned To"
+            options={labels}
+          />
+        )} */}
         {isFiltered && (
           <Button
             variant="ghost"

@@ -886,3 +886,65 @@ func UpdateUserRoleInProject(e *core.RequestEvent) error {
 		"role":      input.Role,
 	})
 }
+
+func GetEmailsForTask(e *core.RequestEvent) error {
+	// 1. Get the authenticated user
+	user := e.Auth
+	if user == nil {
+		return e.UnauthorizedError("Not authenticated", nil)
+	}
+
+	// 2. Read `task_id` from URL query parameters (GET request)
+	taskId := e.Request.URL.Query().Get("taskId")
+	if taskId == "" {
+		return e.BadRequestError("Task ID is required", nil)
+	}
+
+	// 3. Find the task by ID
+	task, _ := e.App.FindRecordById("tasks", taskId)
+	if task == nil {
+		return e.BadRequestError("Task does not exist", nil)
+	}
+
+	// 4. Check if the user is part of the project
+	projectId := task.GetString("project")
+	filter := "project = {:project} && user_id = {:user_id}"
+	params := map[string]any{
+		"project": projectId,
+		"user_id": user.Id,
+	}
+	memberRecord, _ := e.App.FindFirstRecordByFilter("users_projects", filter, params)
+	if memberRecord == nil {
+		return e.ForbiddenError("You are not a member of this project", nil)
+	}
+
+	// 5. Fetch emails for this project
+	emails, err := e.App.FindRecordsByFilter(
+		"emails",
+		"project = {:project}",
+		"-created", // sort newest first
+		1000,
+		0,
+		map[string]any{"project": projectId},
+	)
+	if err != nil {
+		return e.InternalServerError("Failed to fetch emails", err)
+	}
+
+	// 6. Format response
+	result := []map[string]any{}
+	for _, email := range emails {
+		result = append(result, map[string]any{
+			"id":      email.Id,
+			"content": email.GetString("content"),
+			"created": email.GetDateTime("created"),
+			"updated": email.GetDateTime("updated"),
+			"project": projectId,
+		})
+	}
+
+	// 7. Return JSON
+	return e.JSON(http.StatusOK, map[string]any{
+		"emails": result,
+	})
+}

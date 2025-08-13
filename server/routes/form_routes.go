@@ -61,6 +61,10 @@ func RegisterFormRoutes(e *core.ServeEvent) {
 		return formfunctions.UpdateUserRoleInProject(e)
 	}).Bind(apis.RequireAuth()) // Require authentication, remove if not needed
 
+	e.Router.GET("/api/forms/project/task/mails", func(e *core.RequestEvent) error {
+		return formfunctions.GetEmailsForTask(e)
+	}).Bind(apis.RequireAuth()) // Require authentication, remove if not needed
+
 	// Example: Register a GET route for fetching form data
 	// e.Router.GET("/api/forms/:id", func(e *core.RequestEvent) error {
 	// 	return formfunctions.HandleGetForm(e)
