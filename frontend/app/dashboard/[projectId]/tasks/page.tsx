@@ -42,10 +42,11 @@ const baseUrl = process.env.NEXT_S_PUBLIC_BASE_URL || "http://localhost:3000";
 const pbURL = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8090/api";
 
 interface PageProps {
-    params: {
+    params: Promise<{
         projectId: string;
-    };
+    }>;
 }
+
 
 export const metadata: Metadata = {
     title: "Tasks",
@@ -77,7 +78,7 @@ export default async function TaskPage({ params }: PageProps) {
     const cookie = hdrs.get("cookie");
 
     const jsonTemplate = `{
-    "project_id": "${params.projectId}",
+    "project_id": "${(await params).projectId}",
     "content": "Your feedback content here"
 }`;
 
