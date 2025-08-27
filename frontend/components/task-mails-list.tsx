@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { ScrollArea } from "@radix-ui/react-scroll-area";
+import { ScrollArea } from "@/components/ui/scroll-area"
 
 const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
 
@@ -46,19 +46,22 @@ export function TaskMailsList({ taskId }: { taskId: string }) {
   }
 
   return (
-    <ScrollArea className="space-y-4 m-4">
-      {mails.map((mail) => (
-        <Card key={mail.id}>
-          <CardHeader>
-            <CardDescription>
-              {new Date(mail.created).toLocaleString()}
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            {mail.content}
-          </CardContent>
-        </Card>
-      ))}
+    <ScrollArea className="size-full h-5/6">
+      <div>
+        {mails.map((mail) => (
+          <Card key={mail.id} className="m-4">
+            <CardHeader>
+              <CardDescription>
+                {new Date(mail.created).toLocaleString()}
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              {mail.content}
+            </CardContent>
+          </Card>
+        ))}
+        {/* <Card className="h-50 bg-gray-700"></Card> */}
+      </div>
     </ScrollArea>
   );
 }

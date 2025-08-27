@@ -42,11 +42,8 @@ export function ShowMail({ taskId }: { taskId: string }) {
                 </SheetHeader>
 
                 {/* Our new component that handles fetching & card rendering */}
-                <div className="mt-4">
-                    <ScrollArea>
-                        <TaskMailsList taskId={taskId} />
-                    </ScrollArea>
-                </div>
+                <TaskMailsList taskId={taskId} />
+                {/* <div className="bg-white size-full rounded"></div> */}
             </SheetContent>
         </Sheet>
     );
