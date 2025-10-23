@@ -3,9 +3,9 @@ package main
 import (
 	// "context"
 	// "fmt"
+	"David/llm_functions"
 	"David/qdrant_api"
 	"David/routes"
-	"David/llm_functions"
 	"log"
 	"os"
 
@@ -27,7 +27,6 @@ import (
 	"github.com/tmc/langchaingo/llms/openai"
 )
 
-
 func main() {
 
 	err := godotenv.Load()
@@ -39,7 +38,7 @@ func main() {
 
 	// Create a new Qdrant client with API key authentication and TLS enabled
 	client, err := qdrant.NewClient(&qdrant.Config{
-		Host:   "ec9d9f59-6f8c-4cdc-ae05-fa7bc0a465e7.us-west-2-0.aws.cloud.qdrant.io",
+		Host:   "4adabf7b-041a-4c63-9581-eb8127f962b4.europe-west3-0.gcp.cloud.qdrant.io",
 		Port:   6334,
 		APIKey: dbKey,
 		UseTLS: true,
@@ -48,13 +47,13 @@ func main() {
 		panic(err)
 	}
 
-	qdrant_api.CLIENT=client //Singleton
+	qdrant_api.CLIENT = client //Singleton
 
 	apiKey := os.Getenv("GROQ_API_KEY")
 
 	// init grok llm
 	llm, err := openai.New(
-		openai.WithModel("llama3-8b-8192"),
+		openai.WithModel("meta-llama/llama-4-scout-17b-16e-instruct"),
 		openai.WithBaseURL("https://api.groq.com/openai/v1"),
 		openai.WithToken(apiKey),
 	)
@@ -66,8 +65,8 @@ func main() {
 
 	app := pocketbase.New()
 
-	 // loosely check if it was executed using "go run"
-    isGoRun := strings.HasPrefix(os.Args[0], os.TempDir())
+	// loosely check if it was executed using "go run"
+	isGoRun := strings.HasPrefix(os.Args[0], os.TempDir())
 
 	// init embedder model
 	options := fastembed.InitOptions{
@@ -82,24 +81,31 @@ func main() {
 	llm_functions.MODEL = embedder
 	defer embedder.Destroy()
 
-    migratecmd.MustRegister(app, app.RootCmd, migratecmd.Config{
-        // enable auto creation of migration files when making collection changes in the Dashboard
-        // (the isGoRun check is to enable it only during development)
-        Automigrate: isGoRun,
-    })
+	migratecmd.MustRegister(app, app.RootCmd, migratecmd.Config{
+		// enable auto creation of migration files when making collection changes in the Dashboard
+		// (the isGoRun check is to enable it only during development)
+		Automigrate: isGoRun,
+	})
+
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "8090" // fallback for local dev
+	}
+
+	addr := "0.0.0.0:" + port
 
 	app.OnServe().BindFunc(func(se *core.ServeEvent) error {
 		// serves static files from the provided public dir (if exists)
 		routes.RegisterUserRoutes(se)
 		routes.RegisterFormRoutes(se)
 		routes.RegisterEHandlerRoutes(se)
+		se.Server.Addr = addr
 		return se.Next()
 	})
+
 	if err := app.Start(); err != nil {
 		log.Fatal(err)
 	}
-	
-
 
 	// collections, err := client.ListCollections(context.Background())
 	// if err != nil {
@@ -112,10 +118,6 @@ func main() {
 	// query := "Hi Team, I’ve been facing a couple of issues with the app recently. First, the app crashes every time I try to log in, especially when my internet connection is slow. Also, push notifications seem to have stopped working entirely after the last update, even though they’re enabled in the settings. On another note, it would be great if you could add a dark mode option to make the app easier to use at night. Please let me know if you need more details to look into these issues.Thanks,[Customer Name]"
 
 	// tasks := qdrant_api.GetTasks(query, llm)
-
-	
-
-	
 
 	// for _, task := range tasks {
 	// 	isBug := false
@@ -166,7 +168,6 @@ func main() {
 	// 		result = value.GetStructValue().GetFields()
 	// 	}
 	// 	}
-	
 
 	// 	fmt.Println("Result: ", result["Content"].GetStringValue())
 
@@ -196,6 +197,3 @@ func main() {
 	// }
 
 }
-
-
-
