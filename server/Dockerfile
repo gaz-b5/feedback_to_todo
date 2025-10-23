@@ -1,5 +1,5 @@
 # Build stage
-FROM golang:1.21-bullseye AS builder
+FROM golang:1.23-bullseye AS builder
 
 WORKDIR /app
 
@@ -42,5 +42,6 @@ EXPOSE 8090
 
 # Run the application
 CMD ["./server", "serve"]
+
 #test@gmail.com
 #password
