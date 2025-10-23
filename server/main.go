@@ -10,7 +10,7 @@ import (
 	"os"
 
 	// "strconv"
-	"strings"
+
 	// "time"
 
 	"github.com/anush008/fastembed-go"
@@ -66,7 +66,7 @@ func main() {
 	app := pocketbase.New()
 
 	// loosely check if it was executed using "go run"
-	isGoRun := strings.HasPrefix(os.Args[0], os.TempDir())
+	// isGoRun := strings.HasPrefix(os.Args[0], os.TempDir())
 
 	// init embedder model
 	options := fastembed.InitOptions{
@@ -84,7 +84,7 @@ func main() {
 	migratecmd.MustRegister(app, app.RootCmd, migratecmd.Config{
 		// enable auto creation of migration files when making collection changes in the Dashboard
 		// (the isGoRun check is to enable it only during development)
-		Automigrate: isGoRun,
+		Automigrate: true,
 	})
 
 	port := os.Getenv("PORT")
