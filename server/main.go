@@ -4,6 +4,7 @@ import (
 	// "context"
 	// "fmt"
 	"David/llm_functions"
+	_ "David/migrations"
 	"David/qdrant_api"
 	"David/routes"
 	"log"
