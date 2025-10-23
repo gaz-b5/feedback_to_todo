@@ -42,3 +42,5 @@ EXPOSE 8090
 
 # Run the application
 CMD ["./server", "serve"]
+#test@gmail.com
+#password
