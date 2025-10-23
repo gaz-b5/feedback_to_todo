@@ -31,6 +31,10 @@ RUN wget https://github.com/microsoft/onnxruntime/releases/download/v1.18.0/onnx
     ldconfig && \
     rm -rf onnxruntime-linux-x64-1.18.0*
 
+# Set environment variables for ONNX Runtime
+ENV LD_LIBRARY_PATH=/usr/local/lib:$LD_LIBRARY_PATH
+ENV ONNX_PATH=/usr/local/lib/libonnxruntime.so
+
 # Copy binary from builder
 COPY --from=builder /app/server .
 
@@ -42,6 +46,7 @@ EXPOSE 8090
 
 # Run the application
 CMD ["./server", "serve"]
+
 
 #test@gmail.com
 #password
