@@ -23,7 +23,7 @@ import {
 import { roles } from "@/data/data";
 import { Trash } from "lucide-react";
 
-const baseUrl = process.env.NEXT_S_PUBLIC_BASE_URL || "http://localhost:3000";
+const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
 
 type Member = {
     user_id: string;

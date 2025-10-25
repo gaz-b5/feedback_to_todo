@@ -36,7 +36,7 @@ import { Separator } from "./ui/separator"
 import { AddMail } from "@/components/add-mail"
 import { BookmarkCheck } from "lucide-react"
 
-const baseUrl = process.env.NEXT_S_PUBLIC_BASE_URL || "http://localhost:3000"
+const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"
 
 
 interface DataTableToolbarProps<TData> {

@@ -38,7 +38,7 @@ import { MembersSection } from "@/components/project-settings"
 import { DeleteProjectButton } from "@/components/delete-project"
 
 
-const baseUrl = process.env.NEXT_S_PUBLIC_BASE_URL || "http://localhost:3000";
+const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
 const pbURL = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8090/api";
 
 interface PageProps {

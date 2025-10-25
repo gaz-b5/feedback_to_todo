@@ -5,7 +5,7 @@ import { EditMembers } from "@/components/edit-members-form";
 import { Separator } from "@/components/ui/separator";
 import { DialogTitle } from "@/components/ui/dialog";
 
-const baseUrl = process.env.NEXT_S_PUBLIC_BASE_URL || "http://localhost:3000";
+const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
 
 export function MembersSection({ projectId }: { projectId: string }) {
     const [members, setMembers] = useState([]);

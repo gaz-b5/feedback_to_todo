@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/select"
 import { roles } from "@/data/data"
 
-const baseUrl = process.env.NEXT_S_PUBLIC_BASE_URL || "http://localhost:3000";
+const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
 
 export function AddMemberForm({ projectId, onMemberAdded }: { projectId: string; onMemberAdded: () => void }) {
     async function handleAddMember(event: React.FormEvent<HTMLFormElement>) {
