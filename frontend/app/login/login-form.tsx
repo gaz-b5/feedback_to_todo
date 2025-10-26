@@ -65,6 +65,9 @@ export function LoginForm({
           Sign up
         </a>
       </div>
+      <div className="text-sm text-muted-foreground text-center">
+        Email verification and OTP generation for password reset are currently disabled due to limitations of the Railway free tier.
+      </div>
     </form>
   );
 }
